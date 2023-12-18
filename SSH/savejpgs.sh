@@ -38,4 +38,4 @@ for url in ${url_array}; do
   sleep $(($RANDOM % 20))
 done
 
-mkdir -p "${OUTPUT_DIR}/download.done
+mkdir -p "${OUTPUT_DIR}"/download.done
