@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  default:
+    desc: Run all tasks
+    cmds:
+      - task: setup
+      - task: summarize
+
+  setup:
+    desc: Restore HGMD db
+    run: once
+    cmds:
+      - bash /home/setup.sh >${BIND_DIR}/log-HGMD.${HGMD_VERSION}.txt 2>&1
+
+  summarize:
+    desc: Generate gene-based HGMD infomation file
+    deps: [setup]
+    cmds:
+      - bash /home/run.sh

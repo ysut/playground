@@ -1,0 +1,76 @@
+version : "3"
+
+networks:
+  hgmd_net:
+    driver: bridge
+
+services:
+  db:
+    container_name: HGMD_MariaDB
+    build:
+      context: Docker/db
+      dockerfile: Dockerfile
+    image: mariadb:latest
+    restart: always
+    ports:
+      - 3307:3306
+    networks:
+      - hgmd_net
+    volumes:
+      - type: bind
+        source: ${DB_DIR}
+        target: /var/lib/mysql
+      # For init db if you need
+      # - type: bind
+      #   source: Docker/db/initdb.d
+      #   target: /docker-entrypoint-initdb.d
+    environment:
+      - TZ=Asia/Tokyo
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+
+  app:
+    container_name: HGMD_app
+    build:
+      context: Docker/app
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    tty: true
+    ports:
+      - "8000:80"
+    networks:
+      - hgmd_net
+    environment:
+      - HGMD_VERSION
+      - HGMD_DUMPS_DIR=/resources
+      - BIND_DIR=/home/output
+    volumes:
+      - type: bind
+        source: ${HGMD_DUMPS_DIR}
+        target: /resources
+      - type: bind
+        source: ${BIND_DIR}
+        target: /home/output
+
+  phpmyadmin:
+    container_name: HGMD_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - db
+    ports:
+      - "3000:80"
+    networks:
+      - hgmd_net
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=root
+      - PMA_PASSWORD=pwd
+    volumes:
+      - type: bind
+        source: ${SESSIONS_DIR}
+        target: /sessions
+
+
