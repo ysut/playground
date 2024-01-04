@@ -47,7 +47,7 @@ df_genes = pd.DataFrame(fetched_allgenes)
 df = pd.merge(left=df_genes, right=df_tags, how='left', on='gene')
 
 
-## Save as pickle
+## Save a file as compressed TSV
 df.to_csv(
     output_path, index=False, sep='\t', encoding='utf-8', compression='gzip'
     )

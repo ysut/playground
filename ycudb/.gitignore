@@ -1,0 +1,3 @@
+# Ignore sqlite files and raw data files
+/db/*
+/rawdata/*
