@@ -25,7 +25,8 @@ In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host dire
 (base) # conda activate maria
 (maria) # task
 ```
-It will take a long time. Finaly, a gene-based summarized tsv (e.g. HGMD_GeneBasedInfo_2023.3.tsv.gz) will be created.
+It will take a long time⏳.  
+Finaly, a gene-based summarized tsv (e.g. HGMD_GeneBasedInfo_2023.3.tsv.gz) will be created.
 
 
 ## Output format
