@@ -22,8 +22,7 @@ $ docker compose exec app bash
 4. Activate conda environment (named maria) and run tasks  
 In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host directory defined by ${BIND_DIR}.
 ```
-(base) # conda activate maria
-(maria) # task
+(base) # task
 ```
 It will take a long time⏳.  
 Finaly, a gene-based summarized tsv (e.g. HGMD_GeneBasedInfo_2023.3.tsv.gz) will be created.
