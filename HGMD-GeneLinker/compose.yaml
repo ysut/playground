@@ -44,8 +44,8 @@ services:
       - hgmd_net
     environment:
       - HGMD_VERSION
-      # - HGMD_DUMPS_DIR=/resources
-      # - BIND_DIR=/home/output
+      # - HGMD_DUMPS_DIR
+      # - BIND_DIR
     volumes:
       - type: bind
         source: ${HGMD_DUMPS_DIR}
