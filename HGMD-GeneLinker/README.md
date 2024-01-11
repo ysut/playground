@@ -28,6 +28,11 @@ In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host dire
 It will take a long time. Finaly, a gene-based summarized tsv (e.g. HGMD_GeneBasedInfo_2023.3.tsv.gz) will be created.
 
 
+## Output format
+Columns are:
+gene, altsymbol, refseq, expected_inheritance, hgncID, omimid, DFP, DM, DM?, DP, FP, R
+
+
 ## phpMyAdmin
 The phpMyAdmin container will run. You can access `http://localhost:3000/` from host using web browser.  
 If you can not access phpMyAdmin, you should check the permission of sessions directory.  
