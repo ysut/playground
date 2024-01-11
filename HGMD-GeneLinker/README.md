@@ -19,7 +19,7 @@ $ docker compose up -d
 $ docker compose exec app bash
 ```
 
-4. Activate conda environment (named maria) and run tasks  
+4. Run tasks using Taskfile  
 In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host directory defined by ${BIND_DIR}.
 ```
 (base) # task
