@@ -1,5 +1,5 @@
 ## NOTE
-Linuxだと /home/outputの権限を整えないといけないので，/Docer/app/Dockerfileを修正する必要がある．
+Linuxだと /home/outputの権限を整えないといけないので，/Docker/app/Dockerfileを修正する必要がある．
 
 ## Description
 This tiny program is to summrize HGMD data and generate tsv.gz.  
@@ -7,8 +7,8 @@ The output file can provide gene-based information such as numbers of DM class v
 
 ## Usage
 1. Download hgmd dump files from HGMD official site (required Professional license)
-2. Setup .env file
-   Five variables are needed to defined.
+2. Setup `.env` file  
+   Five variables are needed.
    
    1. HGMD version
    2. The path to a directory including HGMD dump files (e.g. hgmd_pro_2023.3.dump.gz)
