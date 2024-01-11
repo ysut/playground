@@ -9,11 +9,11 @@ The output file can provide gene-based information such as the number of DM clas
    
    1. HGMD version
    2. The path to a directory including HGMD dump files (e.g. hgmd_pro_2023.3.dump.gz)
-   3. The path to a directory that binds /var/lib/mysql (For MariaDB data storage)
+   3. The path to a directory that binds `/var/lib/mysql` (For MariaDB data storage)
    4. The path to a directory to save summrized file
    5. The path to a directory to store the session file for phpMyAdmin
    
-4. Build images, run containers, and login container by folowing codes.
+4. Build images, run containers, and login container by following codes.
 ```
 $ docker compose up -d
 $ docker compose exec app bash
@@ -29,8 +29,7 @@ Finaly, a gene-based summarized tsv (e.g. HGMD_GeneBasedInfo_2023.3.tsv.gz) will
 
 
 ## Output format
-Columns are:
-gene, altsymbol, refseq, expected_inheritance, hgncID, omimid, DFP, DM, DM?, DP, FP, R
+Columns are gene, altsymbol, refseq, expected_inheritance, hgncID, omimid, DFP, DM, DM?, DP, FP, and R.
 
 
 ## phpMyAdmin
