@@ -1,11 +1,11 @@
 
-### Description
+## Description
 
 For YCU lab.
-To summrize samples information as sqlite database.  
+To summarize sample information as a SQLite database.
 
 
-### Usage (in Japanese)
+## Usage (in Japanese)
 rawdataディレクトリに以下の3つのエクセルファイルをコピーする．
 
   1. 古いREP用のエクセルファイル
@@ -13,7 +13,7 @@ rawdataディレクトリに以下の3つのエクセルファイルをコピー
   3. 郵送済みリストのエクセルファイル
 
 コピーしたらRUNする．
-dbディレクトリに　sqlite database ができている．
+dbディレクトリに SQLite database ができている．
 
 #### NOTE
 エクセルファイル内の入力をうまく整理できなくて途中で止まるかもしれない．
