@@ -1,0 +1,21 @@
+# Please set five variables below
+# (1) HGMD_VERSION
+# (2) HGMD_DUMPS_DIR
+# (3) DB_DIR
+# (4) BIND_DIR
+# (5) SESISONS_DIR
+
+#1. HGMD VERSION
+HGMD_VERSION="2023.4"
+
+#2. The path to a directory including HGMD dump files
+HGMD_DUMPS_DIR="${HOME}/work/resources/HGMD/${HGMD_VERSION}"
+
+#3. The path to a directory that binds /var/lib/mysql
+DB_DIR="${HOME}/work/resources/db"
+
+#4. Path to the directory for output files
+BIND_DIR="${HOME}/work/"
+
+#5. Path to the sessions directory that binds /sessions in phpMyAdmin 
+SESSIONS_DIR="${HOME}/work/resources/db/phpMyAdmin/sessions"
