@@ -15,6 +15,5 @@ tasks:
 
   summarize:
     desc: Generate gene-based HGMD infomation file
-    deps: [setup]
     cmds:
       - bash /home/run.sh
