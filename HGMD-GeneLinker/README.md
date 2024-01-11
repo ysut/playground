@@ -1,9 +1,6 @@
-## NOTE
-Linuxだと /home/outputの権限を整えないといけないので，/Docker/app/Dockerfileを修正する必要がある．
-
 ## Description
-This tiny program is to summrize HGMD data and generate tsv.gz.  
-The output file can provide gene-based information such as numbers of DM class variants each gene.
+This tiny program is to summarize HGMD data and generate tsv.gz.
+The output file can provide gene-based information such as the number of DM class variants in each gene.
 
 ## Usage
 1. Download hgmd dump files from HGMD official site (required Professional license)
@@ -19,7 +16,7 @@ The output file can provide gene-based information such as numbers of DM class v
 3. Build images, run containers, and login container by folowing codes
 ```
 $ docker compose up -d
-$ docker compose exec -it app bash
+$ docker compose exec app bash
 ```
 
 
@@ -27,12 +24,13 @@ $ docker compose exec -it app bash
 In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host directory defined by ${BIND_DIR}.
 ```
 (base) # conda activate maria
-(maria) # task setup
-(maria) # task summarize
+(maria) # task
 ```
-It will take a long time in "setup" step.
+It will take a long time.
 
 
-#### phpMyAdmin
-The phpMyAdmin container will run. You can access `http://localhost:3000/` from host using web browser.
+## phpMyAdmin
+The phpMyAdmin container will run. You can access `http://localhost:3000/` from host using web browser.  
+If you can not access phpMyAdmin, you should check the permission of sessions directory.  
+Session directory permissions must be 777.
 
