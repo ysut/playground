@@ -77,8 +77,10 @@ RUN set -ex \
 
 RUN rm -rf /usr/tools/tmp
 
-USER nobody
-COPY --chown=nobody:nogroup ./* /home/
+# USER nobody
+# COPY --chown=nobody:nogroup ./* /home/
+COPY ./* /home/
+
 
 WORKDIR /home
 ENTRYPOINT ["tini", "--"]
