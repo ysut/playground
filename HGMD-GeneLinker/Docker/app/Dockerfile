@@ -2,9 +2,7 @@ FROM debian:bookworm-slim
 
 
 # #0. Set sql.cnf path, hgmd dumps directory, and output directory
-ENV SQL_CNF=/home/sql.cnf \
-    HGMD_DUMPS_DIR=/resources \
-    BIND_DIR=/home/output
+ENV SQL_CNF=/home/sql.cnf
 
 #1. Set build arguments
 #1-1. miniforge
