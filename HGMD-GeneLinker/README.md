@@ -21,14 +21,16 @@ The output file can provide gene-based information such as numbers of DM class v
 $ docker compose up -d
 $ docker compose exec -it app bash
 ```
-In this step, log file are created in your host directory defined by ${BIND_DIR}.
 
-4. Activate conda environment (named maria) and run tasks
+
+4. Activate conda environment (named maria) and run tasks  
+In this step, a log file (e.g. log-HGMD.2023.3.txt) are created in the host directory defined by ${BIND_DIR}.
 ```
 (base) # conda activate maria
 (maria) # task setup
 (maria) # task summarize
 ```
+It will take a long time in "setup" step.
 
 
 #### phpMyAdmin
