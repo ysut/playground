@@ -1,0 +1,44 @@
+[Minor_allele_frequency]
+exac.ad = 0.001 
+exac.homo = 0.01
+exac.ch = 0.01
+exac.xlink =  0.01
+
+esp.ad = 0.001
+esp.homo = 0.01
+esp.ch = 0.01
+esp.xlink = 0.01
+
+hgvd.ad = 0.001
+hgvd.homo = 0.01
+hgvd.ch = 0.01
+hgvd.xlink = 0.01
+
+tommo.ad = 0.001
+tommo.homo = 0.01
+tommo.ch = 0.01
+tommo.xlink = 0.01
+
+inhouse.ad = 1
+inhouse.homo = 5
+inhouse.ch = 5
+inhouse.xlink = 5
+
+[Prediction_tools]
+sift.deleterious = 0.05
+pp2hvar.damaging = 0.909
+pp2hvar.possibly = 0.447
+cadd.deleterious = 20
+spliceai.precision = 0.8
+spliceai.recom = 0.5
+spliceai.recall = 0.2
+
+ [XHMM]
+ qsome = 60
+ segdup = 75
+
+ [Dosage_sensitivity]
+ phaplo.precision = 0.86
+ phaplo.recall = 0.55
+ ptriplo.precision = 0.94
+ ptriplo.recall = 0.68

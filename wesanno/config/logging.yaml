@@ -1,0 +1,43 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  simple:
+    format: '%(asctime)s [%(levelname)-7s] (%(name)s) - %(message)s'
+    datefmt: '%Y/%m/%d %I:%M:%S'
+  detailed:
+    format: '%(asctime)s [%(levelname)-7s] (%(name)s:%(lineno)d) - %(message)s'
+    datefmt: '%Y/%m/%d %I:%M:%S'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: wesanno.log
+    encoding: utf-8
+    maxBytes: 10000
+    backupCount: 1
+
+loggers:
+  wesanno.cli:
+    level: INFO
+    handlers: [console, file]
+    propagate: no
+  modules:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+  wesanno.libs.args:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+
+root:
+  level: ERROR
+  handlers: [file]
