@@ -170,10 +170,11 @@ class PreProcessExomeSummary:
         self.df = self.__extract_abraom_maf(self.df)
 
         # Extract genotypeing info
+        logger.info('Extract genotypeing info')
         self.df = self.__extract_genotyoeing_info(self.df)
 
         # Split QC info
-        logger.info('Split QC info ()')
+        logger.info('Split QC info')
         self.df = self._split_qc_info(self.df)
 
         # Replace '.' to np.nan
