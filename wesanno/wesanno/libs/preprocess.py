@@ -8,9 +8,11 @@ from pandarallel import pandarallel
 
 from liftover import get_lifter
 
+from logging import getLogger
+logger = getLogger(__name__)
+
 os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp' 
 pandarallel.initialize(progress_bar=True, verbose=2)
-
 
 class PreProcessExomeSummary:
     def __init__(self, df: pd.DataFrame, mode_samples_info):
@@ -116,20 +118,25 @@ class PreProcessExomeSummary:
         
         return df
 
+    def _split_qc_info(self, df: pd.DataFrame) -> pd.DataFrame:
+        proband_id = self.mode_samples_info.proband_id
+        for i, new_col in enumerate(['GT', 'AD', 'DP', 'GQ', 'PL']):
+            df[new_col] = df[proband_id].str.split(':').str[i]
+            df.fillna({'GQ': 0}, inplace=True)
+            df = df.astype({'GQ': 'int32'})
+    
+        return df
 
     def __drop_unused_cols(self, df: pd.DataFrame) -> pd.DataFrame:
         droplist = [
             'exac03_pLI_Z:pLI:pRec', 'dbscSNV_RF_SCORE', 'dpsi_max_tissue', 
             'dpsi_zscore', 'Otherinfo1', 'OtherInfo2', 'OtherInfo3',
             'HGVD', 'snp20171005_tommo3.5k_passed', 'dbscSNV_ADA_SCORE',
-            'gnomAD_v2_1_1_June2020_z_pLI:LOUEF:pRec'
+            'gnomAD_v2_1_1_June2020_z_pLI:LOUEF:pRec', 'GT'
             ]
 
         return df.drop(droplist, axis=1)
     
-    def _split_qc_info(self, df: pd.DataFrame) -> pd.DataFrame:
-        pass
-
 
     ### Public methods ###
     def liftover_to_hg38(self, row) -> int:
@@ -148,7 +155,7 @@ class PreProcessExomeSummary:
             self.liftover_to_hg38, axis=1)
 
         # Extract InHouse MAF
-        print('Extract InHouse MAF')
+        logger.info('Extract InHouse MAF')
         self.df['InHouse575_AF'] = self.df.parallel_apply(
             self.__extract_inhouse_maf_auto, axis=1)
         self.df['InHouseMale_AF'] = self.df.parallel_apply(
@@ -157,13 +164,17 @@ class PreProcessExomeSummary:
             self.__extract_inhouse_maf_f, axis=1)
 
         # Extract MAF from each database cols
-        print('Extract MAF from each database cols')
+        logger.info('Extract MAF from each database cols')
         self.df = self.__extract_hgvd_maf(self.df)
         self.df = self.__extract_tommo_maf(self.df)
         self.df = self.__extract_abraom_maf(self.df)
 
         # Extract genotypeing info
         self.df = self.__extract_genotyoeing_info(self.df)
+
+        # Split QC info
+        logger.info('Split QC info ()')
+        self.df = self._split_qc_info(self.df)
 
         # Replace '.' to np.nan
         self.df = self.__replace_dot_to_nan(self.df)
