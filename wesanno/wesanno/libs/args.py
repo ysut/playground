@@ -7,9 +7,10 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 params = [
-    '--input', '/work/Github/TestData/trio/29881/exome_summary.20230420_014141.txt',
+    '--input', '/Volumes/vol/work/Github/TestData/proband/IRUD_HRS/annovar/exome_summary.20230413_190252.txt',
     '--xhmm', '/work/Github/TestData/proband/xhmm/data.segdup.strvar.haplo.deciph.omim.xcnv.gene.uniq',
-    '--resources', '/resources'
+    # '--resources', '/Volumes/resources'
+    '--mode', 'quad_unaffected'
     ]
 
 
@@ -30,8 +31,8 @@ def parser_setting() -> dict:
                         type=pathlib2.Path, help='path to root directory for output files')
     parser.add_argument('--xhmm', '-x', required=False, 
                         type=pathlib2.Path, help='path to a directry including XHMM files')
-    parser.add_argument('--vcf', '-v', required=False, 
-                        type=pathlib2.Path, help='path to vcf file')
+    # parser.add_argument('--vcf', '-v', required=False, 
+    #                     type=pathlib2.Path, help='path to vcf file')
     parser.add_argument('--phenotype', '-p', required=False, 
                         type=pathlib2.Path, help='path to a file including phenotypes')
     parser.add_argument('--mode', '-m', required=False, default='auto', 
@@ -41,13 +42,17 @@ def parser_setting() -> dict:
                             ], 
                         help='analyze mode')                        
     parser.add_argument('--samples', '-s', required=False, default='auto',
-                        nargs='*', help='order of samples')                    
+                        nargs='*', help='order of samples')      
+
+    parser.add_argument('--assembly', '-a', required=False, default='hg19',
+                        choices=['hg19', 'hg38', 'GRCh37', 'GRCh38'], 
+                        help='genome assembly')        
     
     parser.add_argument('--config', '-c', required=False, 
                         default=f'{module_path.parents[1]}/config/config.toml',
                         type=pathlib2.Path,  help='path to config file')
     parser.add_argument('--resources', '-r', required=False, 
-                        default=f'{module_path.parents[1]}/db',
+                        default=f'{module_path.parents[1]}/resources',
                         type=pathlib2.Path,  help='path to root directory for databases')
     
     #Options setting for additional annotations

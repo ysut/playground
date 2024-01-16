@@ -11,6 +11,7 @@ import numpy as np
 import yaml
 from pathlib2 import Path
 from tqdm import tqdm
+from typing import NamedTuple
 
 # Local modules
 from .libs.args import parser_setting
@@ -46,10 +47,9 @@ def main():
 
     #----- STEP 3. Get Mode and Samples information
     logger.info('STEP 3. Get Mode and Samples information')
-    modesamples = ModeSamples(df=df, args=args)
+    modesamples: NamedTuple = ModeSamples(df=df, args=args)
     mode_samples_info = modesamples.get_mode_samples_info()
-    logger.info(f'Analyze mode: {mode_samples_info["mode"]}')
-    logger.info(f'Samples: {mode_samples_info["samples"]}')
+    logger.info(f'Analyze mode: {mode_samples_info.mode}')
 
     #----- STEP 4. Output settings
     output_settings = OutputSettings(

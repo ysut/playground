@@ -1,13 +1,13 @@
 #!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
 
 process ANALYZE {
-    script:
     """
-    cd ../ &&
     python -m wesanno \
-    --input ${input} \
-    --output ${output} \
-    --resources ${resources}    
+    --input ${params.input} \
+    --output ${params.output} \
+    --resources ${params.resources} \
     """
 }
 

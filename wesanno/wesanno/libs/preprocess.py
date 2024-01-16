@@ -15,8 +15,9 @@ os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp'
 pandarallel.initialize(progress_bar=True, verbose=2)
 
 class PreProcessExomeSummary:
-    def __init__(self, df: pd.DataFrame, mode_samples_info):
+    def __init__(self, df: pd.DataFrame, args: dict, mode_samples_info):
         self.df = df
+        self.args = args
         self.mode = mode_samples_info.mode
         self.mode_samples_info = mode_samples_info
 
@@ -122,10 +123,34 @@ class PreProcessExomeSummary:
         proband_id = self.mode_samples_info.proband_id
         for i, new_col in enumerate(['GT', 'AD', 'DP', 'GQ', 'PL']):
             df[new_col] = df[proband_id].str.split(':').str[i]
-            df.fillna({'GQ': 0}, inplace=True)
-            df = df.astype({'GQ': 'int32'})
+        df.replace({'GQ': {'.': 0}}, inplace=True)
+        df.fillna({'GQ': 0}, inplace=True)
+        df = df.astype({'GQ': 'int32'})
     
         return df
+    
+    def __process_dataframe_optimized(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Save the original column names
+        column_names: list = list(df.columns) + ['SplitALT']
+
+        # Initialize a list to store the processing results
+        rows_list = []
+
+        # Iterate over the rows of the dataframe (Maybe low performance ......)
+        for row in df.itertuples(index=False):
+            # Split the value of the REF column by comma
+            alts = row.ALT.split(',')
+            # Generate a new row for each split value
+            for alt in alts:
+                new_row = row._asdict()
+                new_row['SplitALT'] = alt
+                rows_list.append(new_row)
+
+        # Convert the list to a dataframe
+        result_df = pd.DataFrame(rows_list)
+        result_df.columns = column_names 
+
+        return result_df
 
     def __drop_unused_cols(self, df: pd.DataFrame) -> pd.DataFrame:
         droplist = [
@@ -149,10 +174,17 @@ class PreProcessExomeSummary:
 
 
     def all_pre_processing(self):
-        # Liftover to hg38
-        print('Liftover to hg38')
-        self.df['POS_38'] = self.df.parallel_apply(
-            self.liftover_to_hg38, axis=1)
+        if ((self.args['assembly'] == 'hg19') 
+            | (self.args['assembly'] == 'GRCh37')):
+            logger.info('Liftover to hg38 is started ...')
+            logger.info('It takes about 5 minutes.')
+            self.df['POS_38'] = self.df.parallel_apply(
+                self.liftover_to_hg38, axis=1)
+            logger.info('Liftover to hg38 is finished.')
+        else:
+            logger.info(f"No liftover to hg38 "
+                        f"(Assembly is {self.args['assembly']}).")
+            pass
 
         # Extract InHouse MAF
         logger.info('Extract InHouse MAF')
@@ -178,9 +210,18 @@ class PreProcessExomeSummary:
         self.df = self._split_qc_info(self.df)
 
         # Replace '.' to np.nan
+        logger.info('Replace "." to np.nan')
         self.df = self.__replace_dot_to_nan(self.df)
 
+        # Split ALT column
+        logger.info('Split ALT column')
+        self.df = self.__process_dataframe_optimized(self.df)
+        self.df = self.df.drop_duplicates(
+            subset=['CHROM', 'POS', 'ALT', 'SplitALT']
+            )
+
         # Drop unused columns
+        logger.info('Drop unused columns')
         self.df = self.__drop_unused_cols(self.df)
 
         return self.df

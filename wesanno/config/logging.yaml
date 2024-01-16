@@ -33,10 +33,19 @@ loggers:
     level: DEBUG
     handlers: [console, file]
     propagate: no
-  wesanno.libs.args:
+  libs.args:
     level: DEBUG
     handlers: [console, file]
     propagate: no
+  libs.preprocess:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+  libs.annolibs.genebased:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+    
 
 root:
   level: ERROR
