@@ -3,6 +3,7 @@
 process ANALYZE {
     script:
     """
+    cd ../ &&
     python -m wesanno \
     --input ${input} \
     --output ${output} \
