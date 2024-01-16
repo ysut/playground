@@ -178,7 +178,7 @@ class PreProcessExomeSummary:
             | (self.args['assembly'] == 'GRCh37')):
             logger.info('Liftover to hg38 is started ...')
             logger.info('It takes about 5 minutes.')
-            self.df['POS_38'] = self.df.parallel_apply(
+            self.df['POS_hg38'] = self.df.parallel_apply(
                 self.liftover_to_hg38, axis=1)
             logger.info('Liftover to hg38 is finished.')
         else:
