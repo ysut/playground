@@ -1,7 +1,6 @@
 import pandas as pd
 import glob
 
-# root_path = '/work-Github/Developing/WES/db/gnomAD/'
 
 class GeneBasedAnno:
     def __init__(self, root_path):
