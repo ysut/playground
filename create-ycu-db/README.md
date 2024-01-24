@@ -5,7 +5,7 @@
 This tiny program is to summarize sample information as a SQLite database.
 
 
-# Usage (in Japanese)
+# Usage
 ### 1. Copy three Excel files  
 Copy the following three Excel files to the rawdata directory:
 1. Excel file for the old REP
@@ -30,5 +30,5 @@ Once the run is complete, a SQLite database will be created in the db directory.
 2. old_samples
 3. mailed_samples
 
-#### NOTE
-エクセルファイル内の入力をうまく整理できなくて途中で止まるかもしれない．
+# NOTE
+This script might get stuck halfway if it can't organize the entries in the input Excel files properly.
