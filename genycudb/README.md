@@ -24,7 +24,10 @@ $ conda install -y pandas
 ```Shell
 (ycudb) $ python main.py
 ```
-dbディレクトリに SQLite database ができている．
+Once the run is complete, a SQLite database will be created in the db directory.
+
+### The SQLite database contains three tables.
+1. 
 
 #### NOTE
 エクセルファイル内の入力をうまく整理できなくて途中で止まるかもしれない．
