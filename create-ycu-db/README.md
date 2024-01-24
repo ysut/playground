@@ -7,7 +7,7 @@ This tiny program is to summarize sample information as a SQLite database.
 
 # Usage
 ### 1. Copy three Excel files  
-Copy the following three Excel files to the rawdata directory:
+Copy the following three Excel files to the `rawdata` directory:
 1. Excel file for the old REP
 2. Excel file for the current REP being updated
 3. Excel file of the mailed list.
@@ -20,10 +20,11 @@ $ conda install -y pandas openpyxl sqlite
 ```
 
 ### 3. RUN
+In the directory that contains `main.py`, 
 ```Shell
 (ycudb) $ python main.py
 ```
-Once the run is complete, a SQLite database will be created in the db directory.
+Once the run is complete, a SQLite database will be created in the `db` directory.
 
 ### The SQLite database contains three tables
 1. new_samples
