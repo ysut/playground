@@ -1,23 +1,22 @@
 
 # Description
-**Generate YCU database.**  
-For YCU lab.  
+**Create YCU database.**  
+:warning: For YCU lab.  
 This tiny program is to summarize sample information as a SQLite database.
 
 
 # Usage (in Japanese)
 ### 1. Copy three Excel files  
-rawdataディレクトリに以下の3つのエクセルファイルをコピーする．
-
-  1. 古いREP用のエクセルファイル
-  2. 現在更新中のREP用のエクセルファイル
-  3. 郵送済みリストのエクセルファイル
+Copy the following three Excel files to the rawdata directory:
+1. Excel file for the old REP
+2. Excel file for the current REP being updated
+3. Excel file of the mailed list.
 
 ### 2. Setup python environment 
 Setup the environment using the following commands in a conda-enabled setting.
 ```Shell
 $ conda create -n ycudb python=3.9 -y && conda activate ycudb
-$ conda install -y pandas 
+$ conda install -y pandas openpyxl sqlite
 ```
 
 ### 3. RUN
