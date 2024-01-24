@@ -140,7 +140,7 @@ def main():
         logger.error(errmsg)
         exit(1)
 
-    # Connect to sqlite3 database
+    # Create a db
     ycu_db = 'db/ycudb.db'
     create_db(ycu_db, dfs)
 
