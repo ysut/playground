@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+      "/Volumes/vol/work/Github/playground/dev/ch1-1/Cargo.toml",
+      "/Volumes/vol/work/Github/playground/dev/ch1-2/Cargo.toml"
+    ],
+}
