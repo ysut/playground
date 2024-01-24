@@ -22,19 +22,19 @@ logger.propagate = False
 class DFs:
     df: pd.DataFrame
     df_old: pd.DataFrame
-    df_post: pd.DataFrame
+    df_mailed: pd.DataFrame
 
 
 def find_excel_files() -> tuple:
     logger.info("Find the excel files")
     old_excel: str = glob.glob('rawdata/2004*.xlsx')[0]
     new_excel: str = glob.glob('rawdata/自動報告書*')[0]
-    post_excel: str = glob.glob('rawdata/郵送*')[0]
+    mailed_excel: str = glob.glob('rawdata/郵送*')[0]
 
-    return old_excel, new_excel, post_excel
+    return old_excel, new_excel, mailed_excel
 
 
-def load_excel_file(old_excel: str, new_excel: str, post_excel: str) -> DFs:
+def load_excel_file(old_excel: str, new_excel: str, mailed_excel: str) -> DFs:
     ## Columns to use
     usecols_new = ['Date', 'YCU ID', 'DNA ID', '病名', 'State', 'Gene', 
                    'WES batch', '家族関係', 'father DNA ID', 'mother DNA ID', 
@@ -59,10 +59,10 @@ def load_excel_file(old_excel: str, new_excel: str, post_excel: str) -> DFs:
     df_old.dropna(how='all')
     df_old = df_old[usecols_old]
 
-    logger.info(f"Load {post_excel} file")
-    df_post = pd.read_excel(post_excel, index_col=None, usecols=usecols_post)
-    df_post.dropna(how='all')
-    df_post = df_post[usecols_post]
+    logger.info(f"Load {mailed_excel} file")
+    df_mailed = pd.read_excel(mailed_excel, index_col=None, usecols=usecols_post)
+    df_mailed.dropna(how='all')
+    df_mailed = df_mailed[usecols_post]
 
     rename_dict = {
         'YCU ID': 'YCU_ID', 'YCUID': 'YCU_ID', 
@@ -70,9 +70,9 @@ def load_excel_file(old_excel: str, new_excel: str, post_excel: str) -> DFs:
         }
     df.rename(columns=rename_dict, inplace=True)
     df_old.rename(columns=rename_dict, inplace=True)
-    df_post.rename(columns=rename_dict, inplace=True)
+    df_mailed.rename(columns=rename_dict, inplace=True)
 
-    return DFs(df, df_old, df_post)
+    return DFs(df, df_old, df_mailed)
 
 
 def adjust_state_info(df: pd.DataFrame) -> pd.DataFrame:
@@ -112,7 +112,7 @@ def create_db(db_path: str, dfs: DFs) -> None:
     logger.info("Create a sqlite database in the 'db' directory")
     dfs.df.to_sql('new_samples', conn, if_exists='replace', index=False)
     dfs.df_old.to_sql('old_samples', conn, if_exists='replace', index=False)
-    dfs.df_post.to_sql('post_samples', conn, if_exists='replace', index=False)
+    dfs.df_mailed.to_sql('mailed_samples', conn, if_exists='replace', index=False)
 
     conn.close()
 
@@ -121,12 +121,12 @@ def create_db(db_path: str, dfs: DFs) -> None:
 
 def main():
     # Loading excel files as pd.DataFrame
-    old_excel, new_excel, post_excel = find_excel_files()
-    dfs = load_excel_file(old_excel, new_excel, post_excel)
+    old_excel, new_excel, mailed_excel = find_excel_files()
+    dfs = load_excel_file(old_excel, new_excel, mailed_excel)
 
     # Adjust 'State' information
     dfs.df = adjust_state_info(dfs.df)
-    dfs.df_post = adjust_state_info(dfs.df_post)
+    dfs.df_mailed = adjust_state_info(dfs.df_mailed)
 
     if len(dfs.df['State'].unique()) > 2:
         errmsg = (f"State column has more than 2 unique values. "
@@ -134,9 +134,9 @@ def main():
         logger.error(errmsg)
         exit(1)
 
-    if len(dfs.df_post['State'].unique()) > 2:
+    if len(dfs.df_mailed['State'].unique()) > 2:
         errmsg = (f"State column has more than 2 unique values. "
-                  f"In the {post_excel}.")
+                  f"In the {mailed_excel}.")
         logger.error(errmsg)
         exit(1)
 
