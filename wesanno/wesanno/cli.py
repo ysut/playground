@@ -15,13 +15,15 @@ from typing import NamedTuple
 
 # Local modules
 from .libs.args import parser_setting
-from .libs.utils import load_config, OutputSettings
+from .libs.utils import load_config, dfs_to_excel, OutputSettings
 from .libs.preprocess import PreProcessExomeSummary
 from .libs.modesamples import ModeSamples
 from .libs.annolibs.anno import Anno
+from .libs.annolibs.genebased import GeneBasedAnno
 from .libs.filter.maffilter import MafFilter
 from .libs.filter.typefilter import TypeFilter
 from .libs.filter.gtfilter import GtFilter
+from .libs.filter.qcfilter import QcFilter
 from .libs.filter.counter import counter
 
 # Settings
@@ -52,18 +54,50 @@ def main():
     logger.info(f'Analyze mode: {mode_samples_info.mode}')
 
     #----- STEP 4. Output settings
+    logger.info('STEP 4. Output settings')
     output_settings = OutputSettings(
         args=args, mode_samples_info=mode_samples_info
         )
     output_file_path: str = output_settings.get_saving_file_path()
 
     #----- STEP 5. Pre-processing
+    logger.info('STEP 5. Pre-processing')
     preprocessing = PreProcessExomeSummary(
-        df=df, mode_samples_info=mode_samples_info
+        df=df, args=args, mode_samples_info=mode_samples_info
         )
     df = preprocessing.all_pre_processing()
 
+    #-----   STEP 6. Annotation
+    logger.info('STEP 6. Annotation')
+    logger.info('STEP 6-1. Gene-based annotation')
+    genebasedanno = GeneBasedAnno(args['resources'])
+    df = genebasedanno.anno_hgmd(df=df)
+
+    # logger.info('STEP 6-2. Variant-based annotation')
+
+    #-----   STEP 7. Filtering
+    qcfilter = QcFilter(df=df)
+    df = qcfilter.exclude_low_qc()
+
+    maffilter = MafFilter(
+        df=df, mode_samples_info=mode_samples_info, config=configs)
+    df = maffilter.all_filtering()
+
+    typefilter = TypeFilter(df=df)
+    df = typefilter.exclude_hlamuc_and_exonicsyno()
+
+    gtfilter = GtFilter(
+        df=df, mode_samples_info=mode_samples_info)
+    dfs = gtfilter.genotypeing_filter()
 
 
 
+
+    #-----   STEP 8. Count variants of filtering process
+    countsummery_file = str(Path(output_file_path).parent) + '/CountSummary.xlsx'
+    filtered_dfs = counter(dfs=dfs, output_excel=countsummery_file)
     
+    #-----   STEP 9. Output as an Excel file
+    dfs_to_excel(dfs, f"{output_file_path}.xlsx")
+
+     

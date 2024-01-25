@@ -1,7 +1,12 @@
 import pandas as pd
 from .gtfilter import ModelDataFrame
 
-def counter(dfs: ModelDataFrame, output_excel: str):
+
+from logging import getLogger
+logger = getLogger(__name__)
+print(__name__)
+
+def counter(dfs: ModelDataFrame, output_excel: str) -> ModelDataFrame:
     # Pick up columns to count variants
     cols_for_counter = [
         'InHouse_absent_FILTER', 'InHouse_1%_FILTER', 
@@ -107,5 +112,5 @@ def counter(dfs: ModelDataFrame, output_excel: str):
 
     counter_summary.to_excel(output_excel, sheet_name='FilteringSummary')
 
-    return counter_summary
+    return post_exsyno
 

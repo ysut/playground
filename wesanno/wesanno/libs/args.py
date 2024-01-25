@@ -83,8 +83,8 @@ def parser_setting() -> dict:
                         default=True, help='Not decorate Excel')
     
 
-    # args = vars(parser.parse_args())
-    args = vars(parser.parse_args(params))
+    args = vars(parser.parse_args())
+    # args = vars(parser.parse_args(params))
 
     print_args(args)
 

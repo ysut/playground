@@ -1,5 +1,4 @@
 import pandas as pd
-from typing import NamedTuple
 
 class QcFilter:
     def __init__(self, df):
@@ -15,7 +14,7 @@ class QcFilter:
     
     def __exclude_low_dp(self, df: pd.DataFrame) -> pd.DataFrame:
         df.loc[
-            (df['DP'] < 5),
+            (df['DP'] < 2),
             'DP_FILTER'
             ] = 'PASS'
 
@@ -42,7 +41,5 @@ class QcFilter:
     def exclude_low_qc(self) -> pd.DataFrame:
         self.df = self.__exclude_low_gq(self.df)
         self.df = self.__exclude_low_dp(self.df)
-        self.df = self.__exclude_low_ab(self.df)
-        self.df = self.__exclude_low_ad(self.df)
 
         return self.df

@@ -6,8 +6,12 @@ class GeneBasedAnno:
     def __init__(self, root_path):
         self._root_path = root_path
         self.path_to_hgmd = glob.glob(f'{self._root_path}/HGMD*.tsv.gz')
-        self.path_to_dcpr = glob.glob(f'{self._root_path}/*G2P.csv.gz')
-
+        self.path_to_ddg2p = glob.glob(f'{self._root_path}/DDG2P_*.gz')
+        self.path_to_eyeg2p = glob.glob(f'{self._root_path}/EyeG2P_*.gz')
+        self.path_to_sking2p = glob.glob(f'{self._root_path}/SkinG2P_*.gz')
+        self.path_to_cancer2p = glob.glob(f'{self._root_path}/CancerG2P_*.gz')
+        self.path_to_cardiacg2p = glob.glob(f'{self._root_path}/CardiacG2P_*.gz')
+        self.path_to_skeletalg2p = glob.glob(f'{self._root_path}/SkeletalG2P_*.gz')
 
     def anno_hgmd(self, df: pd.DataFrame) -> pd.DataFrame:
         hgmd = pd.read_table(self.path_to_hgmd[0], header=0, dtype=str)

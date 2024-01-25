@@ -38,8 +38,12 @@ class PreProcessExomeSummary:
 
     def __extract_abraom_maf(
         self, df: pd.DataFrame, col='ABRaOM') -> pd.DataFrame:
-        df['ABraOM_AF'] = df[col].str.extract('(?<=Frequencies=)(\d\.\d+)')
-        df['ABraOM_AF'] = df['ABraOM_AF'].astype(float)
+        if col in df.columns:
+            df['ABraOM_AF'] = df[col].str.extract('(?<=Frequencies=)(\d\.\d+)')
+            df['ABraOM_AF'] = df['ABraOM_AF'].astype(float)
+        else:
+            df['ABraOM_AF'] = np.nan
+
         return df
     
     def __extract_inhouse_maf_auto(self, row) -> str:
