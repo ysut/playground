@@ -127,9 +127,14 @@ class PreProcessExomeSummary:
         proband_id = self.mode_samples_info.proband_id
         for i, new_col in enumerate(['GT', 'AD', 'DP', 'GQ', 'PL']):
             df[new_col] = df[proband_id].str.split(':').str[i]
+        
         df.replace({'GQ': {'.': 0}}, inplace=True)
         df.fillna({'GQ': 0}, inplace=True)
         df = df.astype({'GQ': 'int32'})
+
+        df.replace({'DP': {'.': 0}}, inplace=True)
+        df.fillna({'DP': 0}, inplace=True)
+        df = df.astype({'DP': 'int32'})
     
         return df
     
@@ -178,17 +183,17 @@ class PreProcessExomeSummary:
 
 
     def all_pre_processing(self):
-        if ((self.args['assembly'] == 'hg19') 
-            | (self.args['assembly'] == 'GRCh37')):
-            logger.info('Liftover to hg38 is started ...')
-            logger.info('It takes about 5 minutes.')
-            self.df['POS_hg38'] = self.df.parallel_apply(
-                self.liftover_to_hg38, axis=1)
-            logger.info('Liftover to hg38 is finished.')
-        else:
-            logger.info(f"No liftover to hg38 "
-                        f"(Assembly is {self.args['assembly']}).")
-            pass
+        # if ((self.args['assembly'] == 'hg19') 
+        #     | (self.args['assembly'] == 'GRCh37')):
+        #     logger.info('Liftover to hg38 is started ...')
+        #     logger.info('It takes about 5 minutes.')
+        #     self.df['POS_hg38'] = self.df.parallel_apply(
+        #         self.liftover_to_hg38, axis=1)
+        #     logger.info('Liftover to hg38 is finished.')
+        # else:
+        #     logger.info(f"No liftover to hg38 "
+        #                 f"(Assembly is {self.args['assembly']}).")
+        #     pass
 
         # Extract InHouse MAF
         logger.info('Extract InHouse MAF')

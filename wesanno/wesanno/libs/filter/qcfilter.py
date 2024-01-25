@@ -5,18 +5,12 @@ class QcFilter:
         self.df = df
 
     def __exclude_low_gq(self, df: pd.DataFrame) -> pd.DataFrame:
-        df.loc[
-            (df['GQ'] < 20),
-            'GQ_FILTER'
-            ] = 'PASS'
+        df.loc[df['GQ'] > 20, 'GQ_FILTER'] = 'PASS'
 
         return df
     
     def __exclude_low_dp(self, df: pd.DataFrame) -> pd.DataFrame:
-        df.loc[
-            (df['DP'] < 2),
-            'DP_FILTER'
-            ] = 'PASS'
+        df.loc[df['DP'] > 10, 'DP_FILTER'] = 'PASS'
 
         return df
     

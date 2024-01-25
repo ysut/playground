@@ -8,15 +8,15 @@ print(__name__)
 
 def counter(dfs: ModelDataFrame, output_excel: str) -> ModelDataFrame:
     # Pick up columns to count variants
-    cols_for_counter = [
-        'InHouse_absent_FILTER', 'InHouse_1%_FILTER', 
-        'MAF_0.1%_FILTER', 'MAF_1%_FILTER', 
-        'HLAMUC_FILTER', 'ExonicSyno_FILTER', 'GT_FILTER'
-        ]
-    dfs.AD = dfs.AD[cols_for_counter]
-    dfs.Hm = dfs.Hm[cols_for_counter]
-    dfs.CH = dfs.CH[cols_for_counter]
-    dfs.XL = dfs.XL[cols_for_counter]
+    # cols_for_counter = [
+    #     'InHouse_absent_FILTER', 'InHouse_1%_FILTER', 
+    #     'MAF_0.1%_FILTER', 'MAF_1%_FILTER', 
+    #     'HLAMUC_FILTER', 'ExonicSyno_FILTER', 'GT_FILTER'
+    #     ]
+    # dfs.AD = dfs.AD[cols_for_counter]
+    # dfs.Hm = dfs.Hm[cols_for_counter]
+    # dfs.CH = dfs.CH[cols_for_counter]
+    # dfs.XL = dfs.XL[cols_for_counter]
     
     # Count all variants
     num_all_vars: int = len(dfs.AD) + len(dfs.XL)
@@ -112,5 +112,5 @@ def counter(dfs: ModelDataFrame, output_excel: str) -> ModelDataFrame:
 
     counter_summary.to_excel(output_excel, sheet_name='FilteringSummary')
 
-    return post_exsyno
+    return dfs
 

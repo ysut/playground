@@ -3,6 +3,10 @@ import pandas as pd
 from typing import NamedTuple, Optional
 
 
+from logging import getLogger
+logger = getLogger(__name__)
+
+
 class ModeSamplesInfo(NamedTuple):
     mode: Optional[str] = None
     proband_id: Optional[str] = None
@@ -17,6 +21,34 @@ class ModeSamples:
         self.df: pd.DataFrame = df
         self.input_mode: str = args['mode']
         self.input_samples: tuple = args['samples']
+
+    @property
+    def analysis_samples(self) -> list:
+        mode_samples_info = self.get_mode_samples_info()
+        mode = mode_samples_info.mode
+        if mode == 'proband':
+            return [mode_samples_info.proband_id]
+        elif mode == 'duo':
+            return [mode_samples_info.proband_id, mode_samples_info.parent_id]
+        elif mode == 'trio':
+            return [
+                mode_samples_info.proband_id, 
+                mode_samples_info.father_id, 
+                mode_samples_info.mother_id
+                ]
+        elif ((mode == 'quad_affected') 
+              | (mode == 'quad_unaffected')):
+            return [
+                mode_samples_info.proband_id, 
+                mode_samples_info.father_id, 
+                mode_samples_info.mother_id,
+                mode_samples_info.sibling_id
+                ]
+        else:
+            logger.error('It has not been implemented ' 
+                         'in more than 5 sample cases.')
+            sys.exit(1)
+
 
     def __varidate_mode(self) -> str:
         format_index: int = self.df.columns.get_loc('FORMAT')

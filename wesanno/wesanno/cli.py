@@ -24,6 +24,7 @@ from .libs.filter.maffilter import MafFilter
 from .libs.filter.typefilter import TypeFilter
 from .libs.filter.gtfilter import GtFilter
 from .libs.filter.qcfilter import QcFilter
+from .libs.filter.hardfilter import HardFilter
 from .libs.filter.counter import counter
 
 # Settings
@@ -51,7 +52,8 @@ def main():
     logger.info('STEP 3. Get Mode and Samples information')
     modesamples: NamedTuple = ModeSamples(df=df, args=args)
     mode_samples_info = modesamples.get_mode_samples_info()
-    logger.info(f'Analyze mode: {mode_samples_info.mode}')
+    logger.info(f'Analysis mode: {mode_samples_info.mode}')
+    logger.info(f'Analysis samples: {modesamples.analysis_samples}')
 
     #----- STEP 4. Output settings
     logger.info('STEP 4. Output settings')
@@ -70,8 +72,10 @@ def main():
     #-----   STEP 6. Annotation
     logger.info('STEP 6. Annotation')
     logger.info('STEP 6-1. Gene-based annotation')
-    genebasedanno = GeneBasedAnno(args['resources'])
-    df = genebasedanno.anno_hgmd(df=df)
+    gba = GeneBasedAnno(args)
+    df = gba.anno_hgmd(df=df)
+    df = gba.anno_dcpr(df=df)
+    df['MOI'] = df.apply(gba.summarize_moi, axis=1)
 
     # logger.info('STEP 6-2. Variant-based annotation')
 
@@ -91,13 +95,19 @@ def main():
     dfs = gtfilter.genotypeing_filter()
 
 
-
-
     #-----   STEP 8. Count variants of filtering process
+    logger.info('STEP 8. Count variants of filtering process')
     countsummery_file = str(Path(output_file_path).parent) + '/CountSummary.xlsx'
     filtered_dfs = counter(dfs=dfs, output_excel=countsummery_file)
     
+
+    #----  STEP 10. Hard filtering
+    logger.info('STEP 10. Hard filtering')
+    hardfilter = HardFilter(dfs=filtered_dfs)
+    filtered_dfs = hardfilter.hard_filtering()
+
     #-----   STEP 9. Output as an Excel file
-    dfs_to_excel(dfs, f"{output_file_path}.xlsx")
+    dfs_to_excel(filtered_dfs, f"{output_file_path}.xlsx")
+    logger.info(f"Output file: {output_file_path}.xlsx has been saved.")
 
      
