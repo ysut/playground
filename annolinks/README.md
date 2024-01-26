@@ -13,5 +13,8 @@ $ cd /path/to/your/directory
 $ ls
 Sample.xlsx
 
-$ docker run --rm -v $(pwd):/input utsuno/repo:annolinks python -m annolinks --input /input/Sample.xlsx --gene-col Gene.refGene
+$ docker run --rm -v $(pwd):/input utsuno/repo:annolinks \
+  python -m annolinks \
+  --input /input/Sample.xlsx \
+  --gene-col Gene.refGene
 ```
