@@ -44,17 +44,35 @@ class GeneBasedAnno:
 
         return df
     
+
+    def dm_filter(self, df: pd.DataFrame) -> pd.DataFrame:
+        df.loc[df['DM'] != 0, 'non_zero_DM'] = 'PASS'
+
+        return df
+    
     
     def anno_dcpr(self, df: pd.DataFrame) -> pd.DataFrame:
         usecols = ['disease name', 'allelic requirement', 'hgnc id']
         panels = ['DD', 'Eye', 'Skin', 'Cancer', 'Cardiac', 'Skeletal']
 
-        dd = pd.read_csv(self.path_to_ddg2p[0], header=0, dtype=str, usecols=usecols)
-        eye = pd.read_csv(self.path_to_eyeg2p[0], header=0, dtype=str, usecols=usecols)
-        ski = pd.read_csv(self.path_to_sking2p[0], header=0, dtype=str, usecols=usecols)
-        can = pd.read_csv(self.path_to_cancer2p[0], header=0, dtype=str, usecols=usecols)
-        car = pd.read_csv(self.path_to_cardiacg2p[0], header=0, dtype=str, usecols=usecols)
-        ske = pd.read_csv(self.path_to_skeletalg2p[0], header=0, dtype=str, usecols=usecols)
+        dd = pd.read_csv(
+            self.path_to_ddg2p[0], header=0, dtype=str, usecols=usecols
+            )
+        eye = pd.read_csv(
+            self.path_to_eyeg2p[0], header=0, dtype=str, usecols=usecols
+            )
+        ski = pd.read_csv(
+            self.path_to_sking2p[0], header=0, dtype=str, usecols=usecols
+            )
+        can = pd.read_csv(
+            self.path_to_cancer2p[0], header=0, dtype=str, usecols=usecols
+            )
+        car = pd.read_csv(
+            self.path_to_cardiacg2p[0], header=0, dtype=str, usecols=usecols
+            )
+        ske = pd.read_csv(
+            self.path_to_skeletalg2p[0], header=0, dtype=str, usecols=usecols
+            )
 
         for df_g2p, panel in zip([dd, eye, ski, can, car, ske], panels):
             df_g2p.rename(columns={
@@ -67,7 +85,8 @@ class GeneBasedAnno:
             df_g2p = df_g2p.groupby('hgncID').agg(';'.join).reset_index()
             df = pd.merge(df, df_g2p, on='hgncID', how='left')
         
-        df['G2P_moi_summary'] = df['DD_allelic_requirment'].fillna('.') + '/' + \
+        df['G2P_moi_summary'] = \
+            df['DD_allelic_requirment'].fillna('.') + '/' + \
             df['Eye_allelic_requirment'].fillna('.') + '/' + \
             df['Skin_allelic_requirment'].fillna('.') + '/' + \
             df['Cancer_allelic_requirment'].fillna('.') + '/' + \
@@ -80,9 +99,6 @@ class GeneBasedAnno:
     def anno_gnomad(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
 
-    def agg_g2pmoi(self, df: pd.DataFrame) -> pd.DataFrame:
-        
-        return df
 
     def summarize_moi(self, row):
         inheritance = row['expected_inheritance']
@@ -98,6 +114,7 @@ class GeneBasedAnno:
             return 'YL' if not any(word in alleleinfo for word in self.not_yl) else '.'
         else:
             return '.'
+    
     
 
     def match_g2p_phenotypes(self, df):

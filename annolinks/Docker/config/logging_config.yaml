@@ -12,44 +12,31 @@ formatters:
 handlers:
   console:
     class: logging.StreamHandler
-    level: DEBUG
+    level: INFO
     formatter: simple
     stream: ext://sys.stdout
   file:
     class: logging.handlers.RotatingFileHandler
     level: INFO
     formatter: detailed
-    filename: wesanno.log
+    filename: annolinks.log
     encoding: utf-8
     maxBytes: 10000
     backupCount: 1
 
 loggers:
-  wesanno.cli:
+  annolinks.cli:
     level: INFO
     handlers: [console, file]
     propagate: no
-  modules:
+  hyperlink:
     level: DEBUG
     handlers: [console, file]
     propagate: no
-  libs.args:
-    level: DEBUG
+  args:
+    level: INFO
     handlers: [console, file]
     propagate: no
-  libs.preprocess:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: no
-  libs.annolibs.genebased:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: no
-  libs.filter.qcfilter:
-    level: DEBUG
-    handlers: [console, file]
-    propagate: no
-    
 
 root:
   level: ERROR

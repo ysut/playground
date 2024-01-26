@@ -10,7 +10,7 @@ params = [
     '--input', '/Volumes/vol/work/Github/TestData/proband/31070/annovar/exome_summary.20220607_145914.txt',
     '--xhmm', '/work/Github/TestData/proband/xhmm/data.segdup.strvar.haplo.deciph.omim.xcnv.gene.uniq',
     # '--resources', '/Volumes/resources'
-    '--mode', 'quad_unaffected'
+    # '--mode', 'quad_unaffected'
     ]
 
 

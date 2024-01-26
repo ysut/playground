@@ -74,17 +74,18 @@ def main():
     logger.info('STEP 6-1. Gene-based annotation')
     gba = GeneBasedAnno(args)
     df = gba.anno_hgmd(df=df)
+    df = gba.dm_filter(df=df)
     df = gba.anno_dcpr(df=df)
     df['MOI'] = df.apply(gba.summarize_moi, axis=1)
 
     # logger.info('STEP 6-2. Variant-based annotation')
 
     #-----   STEP 7. Filtering
-    qcfilter = QcFilter(df=df)
-    df = qcfilter.exclude_low_qc()
+    qcfilter = QcFilter(configs=configs)
+    df = qcfilter.exclude_low_quality(df)
 
     maffilter = MafFilter(
-        df=df, mode_samples_info=mode_samples_info, config=configs)
+        df=df, mode_samples_info=mode_samples_info, configs=configs)
     df = maffilter.all_filtering()
 
     typefilter = TypeFilter(df=df)
@@ -103,11 +104,12 @@ def main():
 
     #----  STEP 10. Hard filtering
     logger.info('STEP 10. Hard filtering')
-    hardfilter = HardFilter(dfs=filtered_dfs)
-    filtered_dfs = hardfilter.hard_filtering()
+    hard = HardFilter(dfs=filtered_dfs)
+    filtered_dfs = hard.hard_filtering()
+
 
     #-----   STEP 9. Output as an Excel file
     dfs_to_excel(filtered_dfs, f"{output_file_path}.xlsx")
     logger.info(f"Output file: {output_file_path}.xlsx has been saved.")
 
-     
+    

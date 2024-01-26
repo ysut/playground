@@ -2,7 +2,7 @@ import pandas as pd
 from typing import NamedTuple
 
 class MafFilter:
-    def __init__(self, df, mode_samples_info, config):
+    def __init__(self, df, mode_samples_info, configs):
         self.df = df
         self.mode = mode_samples_info.mode
 

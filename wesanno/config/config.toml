@@ -42,3 +42,8 @@ spliceai.recall = 0.2
  phaplo.recall = 0.55
  ptriplo.precision = 0.94
  ptriplo.recall = 0.68
+
+
+ [Quality_cutoffs]
+ GQ = 20
+ DP = 10
