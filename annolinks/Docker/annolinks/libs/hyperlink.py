@@ -15,6 +15,8 @@ pandarallel.initialize(
     progress_bar=False, verbose=1, use_memory_fs=False,
     nb_workers=int(os.cpu_count() -1))
 
+from logging import getLogger
+logger = getLogger(__name__)
 
 @dataclass
 class ExcelSheets:
@@ -33,7 +35,8 @@ class Hyperlink:
             ucsc_width: int,
             skip_sites: list,
             spliceai_maskFlag: bool,
-            spliceai_dist: int
+            spliceai_dist: int,
+            windowsFlag: bool
             ):
         # Set logger    
         self.logger = getLogger(__name__)
@@ -48,6 +51,7 @@ class Hyperlink:
         self.skip_sites: list = skip_sites
         self.is_splai_masked: bool = spliceai_maskFlag
         self.splai_dist: int = spliceai_dist
+        self.is_windows: bool = windowsFlag
 
         # Set query position
         if ((self.assembly == 'hg19') | (self.assembly == 'GRCh37')):
@@ -85,9 +89,14 @@ class Hyperlink:
     ## Reorder columns
     def __rearrange_cols(self, df: pd.DataFrame) -> pd.DataFrame:
         lst: list = df.columns.tolist()
-        last_five = lst[-5:] # Get last 5 columns
-        rest = lst[:-5]      # Get the rest of columns
-        rearranged = last_five + rest
+        hyperlink_cols_num: int = 5 - len(self.skip_sites)
+        # Get hyperlink columns
+        hyperlink_cols: list = lst[-hyperlink_cols_num:] 
+        logger.info(f"Hyperlink columns: {hyperlink_cols}")
+        # Get the rest of columns
+        non_hyperlink_cols: list = lst[:-hyperlink_cols_num]
+        # Reorder columns
+        rearranged: list = hyperlink_cols + non_hyperlink_cols
         rearranged_df = df[rearranged]
     
         return rearranged_df
@@ -186,7 +195,10 @@ class Hyperlink:
             f"&distance={self.splai_dist}&mask={mask}&ra=0"
             )
 
-        return urllib.parse.quote(url)
+        if self.is_windows:
+            return urllib.parse.quote(url, safe='#=&:/')
+        else:
+            return urllib.parse.quote(url)
     
     def insert_hyperlinks(self, df: pd.DataFrame) -> pd.DataFrame:
         # Insert hyperlinks
@@ -208,7 +220,7 @@ class Hyperlink:
         else:
             self.logger.info("Skip DECIPHER hyperlink insertion")
 
-        if 'SpliceAI lookup' not in self.skip_sites:
+        if 'SpliceAI' not in self.skip_sites:
             df['SpliceAI_Lookup'] = df.parallel_apply(
                 self.__generate_spliceailookup_url, axis=1)
         else:

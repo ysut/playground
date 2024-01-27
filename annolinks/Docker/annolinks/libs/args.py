@@ -37,7 +37,7 @@ def parser_setting() -> dict:
     parser.add_argument('--skip-sites', required=False, type=str,
                         help=('Skip annotation to selected site links.'
                               'Select from "HGMD", "Franklin", "DECIPHER", '
-                              '"SpliceAI lookup", and, "UCSC".'
+                              '"SpliceAI", and, "UCSC".'
                               ' (e.g. Franklin,UCSC,HGMD etc.)'
                               ))
     
@@ -72,6 +72,17 @@ def parser_setting() -> dict:
     #13 SpliceAI lookup option - Max distance (default: 10000)
     parser.add_argument('--spliceai-dist', required=False, type=int,
                         default=10000, help='Max distance for SpliceAI lookup')
+    
+
+    #14 Liftover option
+    parser.add_argument('--liftover', required=False,
+                        action='store_true', default=False, dest='liftoverFlag',
+                        help='Add liftover process (hg19 -> hg38)')
+    
+    #15 Windows option
+    parser.add_argument('--windows', required=False,
+                        action='store_true', default=False, dest='windowsFlag',
+                        help='For using on Windows OS')
                         
     return vars(parser.parse_args())
 
@@ -86,6 +97,8 @@ def analyze_args(args: dict) -> dict:
     parsed_args['franklin_page'] = args['franklin_page']
     parsed_args['spliceai_maskFlag'] = args['maskFlag']
     parsed_args['spliceai_dist'] = args['spliceai_dist']
+    parsed_args['liftover'] = args['liftoverFlag']
+    parsed_args['windowsFlag'] = args['windowsFlag']
 
     # Output    
     if args['output'] is None:
@@ -137,19 +150,28 @@ def analyze_args(args: dict) -> dict:
         logger.error(f"Invalid assembly: {args['assembly']}")
         raise ValueError('Invalid assembly')
     
+    # Showing arguments in log
+    if parsed_args['spliceai_maskFlag']:
+        spliceai_score = 'masked'
+    else:
+        spliceai_score = 'raw'
 
     logger.info(
         f"""
-                                     ## Arguments ##
-                                     Input      : {parsed_args['input']}
-                                     Output     : {parsed_args['output']}
-                                     Assembly   : {parsed_args['assembly']}
-                                     Gene column: {parsed_args['gene_col']}
-                                     Skip sheets: {parsed_args['skip_sheets']}
-                                     Skip sites : {parsed_args['skip_sites']}
-                                     UCSC width : {parsed_args['ucsc_width']}
-                                     POS19      : {parsed_args['pos19']}
-                                     POS38      : {parsed_args['pos38']}
+
+                              ## Arguments ##
+                              Input         : {parsed_args['input']}
+                              Output        : {parsed_args['output']}
+                              Assembly      : {parsed_args['assembly']}
+                              Gene column   : {parsed_args['gene_col']}
+                              Skip sheets   : {parsed_args['skip_sheets']}
+                              Skip sites    : {parsed_args['skip_sites']}
+                              UCSC width    : {parsed_args['ucsc_width']}
+                              POS19         : {parsed_args['pos19']}
+                              POS38         : {parsed_args['pos38']}
+                              SpliceAI score: {spliceai_score}
+                              SpliceAI dist : {parsed_args['spliceai_dist']}
+                              Windows URL   : {parsed_args['windowsFlag']}
         """
         )
 

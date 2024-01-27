@@ -47,7 +47,8 @@ def main():
         pos38=args['pos38'],
         ucsc_width=args['ucsc_width'],
         spliceai_maskFlag=args['spliceai_maskFlag'],
-        spliceai_dist=args['spliceai_dist']
+        spliceai_dist=args['spliceai_dist'],
+        windowsFlag=args['windowsFlag']
         )
     
     for sheet in anno_sheets:
