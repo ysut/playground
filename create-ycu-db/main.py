@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import glob
 
+import numpy as np
 import pandas as pd
 import sqlite3
 
@@ -95,10 +96,10 @@ def adjust_state_info(df: pd.DataFrame) -> pd.DataFrame:
         '欠番', 'Unknown', 'Inconclusive', 
         'サンガーの結果、本家系で見られたCOL4A2バリアントはなかった'
         ]
-
-    df.replace(replace_to_identified, 'Identified', inplace=True)
-    df.replace(replace_to_undetermined, 'Undetermined', inplace=True)
-    df.fillna('Undetermined', inplace=True)
+    
+    df.fillna({'State': 'Undetermined'}, inplace=True)
+    df.replace({'State': replace_to_identified}, 'Identified', inplace=True)
+    df.replace({'State': replace_to_undetermined}, 'Undetermined', inplace=True)
 
     return df
 
@@ -128,16 +129,23 @@ def main():
     dfs.df = adjust_state_info(dfs.df)
     dfs.df_mailed = adjust_state_info(dfs.df_mailed)
 
+    # Fill NaN with np.nan
+    logger.info("Fill NaN with np.nan")
+    for df in [dfs.df, dfs.df_old, dfs.df_mailed]:
+        dfs.df.replace('', np.nan, inplace=True)
+
     if len(dfs.df['State'].unique()) > 2:
         errmsg = (f"State column has more than 2 unique values. "
                   f"In the {new_excel}.")
         logger.error(errmsg)
+        logger.error(dfs.df['State'].unique())
         exit(1)
 
     if len(dfs.df_mailed['State'].unique()) > 2:
         errmsg = (f"State column has more than 2 unique values. "
                   f"In the {mailed_excel}.")
         logger.error(errmsg)
+        logger.error(dfs.df_mailed['State'].unique())
         exit(1)
 
     # Create a db
