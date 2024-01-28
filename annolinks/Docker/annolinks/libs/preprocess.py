@@ -13,6 +13,7 @@ pandarallel.initialize(
 os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp' 
 logger = getLogger(__name__)
 
+
 def is_liftover_needed(df: pd.DataFrame, args: dict) -> bool:
     if 'DECIPHER' in args['skip_sites']:
         return False
@@ -25,7 +26,7 @@ def is_liftover_needed(df: pd.DataFrame, args: dict) -> bool:
             else:
                 return True
             
-            
+
 def liftover_process(row) -> int:
     converter = get_lifter('hg19', 'hg38')
     return converter[row['CHROM']][row['POS']][0][1]

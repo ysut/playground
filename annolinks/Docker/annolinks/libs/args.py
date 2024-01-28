@@ -72,19 +72,13 @@ def parser_setting() -> dict:
     #13 SpliceAI lookup option - Max distance (default: 10000)
     parser.add_argument('--spliceai-dist', required=False, type=int,
                         default=10000, help='Max distance for SpliceAI lookup')
-    
-
-    #14 Liftover option
-    parser.add_argument('--liftover', required=False,
-                        action='store_true', default=False, dest='liftoverFlag',
-                        help='Add liftover process (hg19 -> hg38)')
-    
-    #15 Windows option
+        
+    #14 Windows option
     parser.add_argument('--windows', required=False,
                         action='store_true', default=False, dest='windowsFlag',
                         help='For using on Windows OS')
 
-    #16 Split ALT column
+    #15 Split ALT column
     parser.add_argument('--split-alt', required=False,
                         action='store_true', default=False, dest='splitALTFlag',
                         help='Split ALT column by comma')
@@ -102,7 +96,6 @@ def analyze_args(args: dict) -> dict:
     parsed_args['franklin_page'] = args['franklin_page']
     parsed_args['spliceai_maskFlag'] = args['maskFlag']
     parsed_args['spliceai_dist'] = args['spliceai_dist']
-    parsed_args['liftover'] = args['liftoverFlag']
     parsed_args['windowsFlag'] = args['windowsFlag']
 
     # Output    

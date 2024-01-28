@@ -217,8 +217,7 @@ class Hyperlink:
                 df['HGMD'] = df.parallel_apply(
                     self.__generate_hgmd_url, axis=1)
             else:
-                logger.warning("Skip HGMD URL insertion. "
-                               f"{self.gene_symbol_col} column is not found.")
+                logger.warning("Skip HGMD URL insertion.")
         else:
             self.logger.info("Skip HGMD URL insertion")
         
@@ -233,8 +232,7 @@ class Hyperlink:
                 df['DECIPHER'] = df.parallel_apply(
                     self.__generate_decipher_url, axis=1)
             else:
-                logger.warning("Skip DECIPHER URL insertion. "
-                               f"{self.gene_symbol_col} column is not found.")
+                logger.warning("Skip DECIPHER URL insertion.")
         else:
             self.logger.info("Skip DECIPHER URL insertion")
 

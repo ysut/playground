@@ -14,13 +14,9 @@ RUN set -ex \
         > /dev/null \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    # && conda update -n base conda --yes \
-    # && conda install --yes \
-    #      numpy openpyxl pandas pandarallel pathlib2 pyyaml tqdm \
     && pip install --upgrade pip \
     && pip install --no-cache-dir \
-        wheel numpy openpyxl pandas pandarallel tqdm pathlib2 pyyaml liftover
-    # && conda clean --tarballs --index-cache --packages --yes
+        numpy openpyxl pandas pandarallel tqdm pathlib2 pyyaml liftover
 
 COPY . /app/
 ENTRYPOINT ["tini", "--"]
