@@ -3,7 +3,7 @@ disable_existing_loggers: false
 
 formatters:
   simple:
-    format: '%(asctime)s [%(levelname)-7s] (%(name)s) - %(message)s'
+    format: '%(asctime)s [%(levelname)-7s] (%(name)-13s) - %(message)s'
     datefmt: '%Y/%m/%d %I:%M:%S'
   detailed:
     format: '%(asctime)s [%(levelname)-7s] (%(name)s:%(lineno)d) - %(message)s'
@@ -34,6 +34,14 @@ loggers:
     handlers: [console, file]
     propagate: no
   args:
+    level: INFO
+    handlers: [console, file]
+    propagate: no
+  errcheck:
+    level: INFO
+    handlers: [console, file]
+    propagate: no
+  preprocess:
     level: INFO
     handlers: [console, file]
     propagate: no

@@ -4,9 +4,6 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-# Check required columns in input excel file
-# Minimum required columns are 'CHROM', 'POS', 'REF', 'ALT'
-
 class ErrorCheck:
     def __init__(
             self,
@@ -20,35 +17,44 @@ class ErrorCheck:
         self.skip_sites = skip_sites
         self.args = args
 
-    def has_specified_columns(self, df: pd.DataFrame) -> bool:
+    def has_specified_columns(self) -> bool:
         specified_cols = [
             'HGMD', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC', 'Franklin'
             ]
-        must_change_cols = []
-        for col in specified_cols:
-            if col in df.columns:
-                must_change_cols.append(col)
-        if must_change_cols:
+        
+        result = {}
+        for sheet in self.anno_sheets:
+            must_change_cols = []
+            for col in specified_cols:
+                if col in self.dfs.sheets[sheet].columns:
+                    must_change_cols.append(col)
+            result[sheet] = must_change_cols
+
+        if sum([len(v) for v in result.values()]):
             logger.error(f'The following column names must be changed: '
-                         f'{must_change_cols}')
+                         f'{result}')
             return True
         else:
             logger.info('All specified columns are not found.')
             return False
 
-    def has_required_columns(self, df: pd.DataFrame) -> bool:
-        required_cols = ['CHROM', 'POS', 'REF', 'ALT']
-        must_cols = []
-        for col in required_cols:
-            if col not in df.columns:
-                must_cols.append(col)
-        if must_cols == []:
+    def has_required_columns(self) -> bool:
+        required_cols = ['CHROM', 'POS', 'REF', self.args['alt_col']]
+        result = {}        
+        for sheet in self.anno_sheets:
+            must_cols = []
+            for col in required_cols:
+                if col not in self.dfs.sheets[sheet].columns:
+                    must_cols.append(col)
+            result[sheet] = must_cols
+
+        if sum([len(v) for v in result.values()]):
+            logger.error(f'The following column must be required to annotate: '
+                         f'{result}')
+            return False
+        else:
             logger.info('All required columns are found.')
             return True
-        else:
-            logger.error(f'The following column must be required to annotate: '
-                         f'{must_cols}')
-            return False
             
     # def __has_liftover_columns(self) -> bool:
     #     if ((self.args['assembly'] == 'hg19') 
@@ -77,3 +83,5 @@ class ErrorCheck:
                          "consider using the '--skip-sheets' or "
                          "'--skip-sites' options.")
             return False
+
+    # Check if the cell value of input excel file is datetime data type

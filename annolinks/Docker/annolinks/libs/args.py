@@ -12,7 +12,7 @@ def parser_setting() -> dict:
                         help='path to a excel file')
     
     #2 Gene symbol column name
-    parser.add_argument('--gene-col', '-G', required=True, type=str, 
+    parser.add_argument('--gene-col', '-G', required=False, type=str, 
                         help='The column name of gene symbol')
     
     #3 Using ALT column name

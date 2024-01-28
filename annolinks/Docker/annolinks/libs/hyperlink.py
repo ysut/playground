@@ -90,12 +90,21 @@ class Hyperlink:
     ## Reorder columns
     def __rearrange_cols(self, df: pd.DataFrame) -> pd.DataFrame:
         lst: list = df.columns.tolist()
-        hyperlink_cols_num: int = 5 - len(self.skip_sites)
+        specified_cols = [
+            'HGMD', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC', 'Franklin'
+            ]
+        
+        # Count the number of inserted columns
+        inserted_col: int = 0
+        for specified_col in specified_cols:
+            if specified_col in lst:
+                inserted_col += 1
+
         # Get hyperlink columns
-        hyperlink_cols: list = lst[-hyperlink_cols_num:] 
+        hyperlink_cols: list = lst[-inserted_col:] 
         logger.info(f"Hyperlink columns: {hyperlink_cols}")
         # Get the rest of columns
-        non_hyperlink_cols: list = lst[:-hyperlink_cols_num]
+        non_hyperlink_cols: list = lst[:-inserted_col]
         # Reorder columns
         rearranged: list = hyperlink_cols + non_hyperlink_cols
         rearranged_df = df[rearranged]
@@ -270,18 +279,32 @@ def df_to_excel(dfs: dataclass, output_xlsx) -> None:
             dfs.sheets[sheet].to_excel(writer, sheet_name=sheet, index=False)
 
 
+def __count_inserted_cols(sheet: xl.worksheet.worksheet.Worksheet) -> int:
+    sites = ['HGMD', 'Franklin', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC']
+    inseted_col: int = 0
+    for i in range(1,6):
+        if sheet.cell(1, i).value in sites:
+            inseted_col += 1
+        else:
+            pass
+    
+    return inseted_col
+
+
 def convert_url_to_hyperlink(
         input_excel: str, anno_sheets: list, skip_sites: list
         ) -> xl.workbook.workbook.Workbook:
     
-    max_col: int = 5 - len(skip_sites)
+    sites = ['HGMD', 'Franklin', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC']
+    # max_col: int = 5 - len(skip_sites)
     wb = xl.load_workbook(input_excel)
     sheets = wb.worksheets
 
-    for sheet in tqdm(sheets):    
+    for sheet in tqdm(sheets):
         if sheet.title in anno_sheets:
+            inseted_col: int = __count_inserted_cols(sheet)            
             for col in sheet.iter_cols(min_row=2, max_row=sheet.max_row, 
-                                    min_col=1, max_col=max_col):
+                                    min_col=1, max_col=inseted_col):
                 for cell in col:
                     col_letter = xl.utils.get_column_letter(cell.column)
                     cell.hyperlink = cell.value

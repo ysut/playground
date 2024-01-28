@@ -39,31 +39,26 @@ def main():
     ec = errcheck.ErrorCheck(dfs=dfs, anno_sheets=anno_sheets, 
                              skip_sites=args['skip_sites'], args=args)
     
-    logger.info('Check specified columns (HGMD, DECIPHER, ...)')
+    logger.info('Check specified columns (HGMD, DECIPHER, ...)')    
     if ec.has_specified_columns():
         sys.exit(1)
     
-    logger.info('Check required columns (CHROM, POS, REF, and ALT)')
+    logger.info("Check required columns "
+                "(CHROM, POS, REF, and ALT (or sepcified ALT column name))")
     if not ec.has_required_columns():
         sys.exit(1)
-
+    
     logger.info('Check hyperlink limitation')
     if not ec.is_within_limit():
         sys.exit(1)
 
-    
     #------- Step 2. Preprocess -------#
     #2. Insert liftover columns to each dataframe
-    logger.info('Insert hyperlink columns to each dataframe')
-    if ((args['assembly'] == 'hg19') | (args['assembly'] == 'GRCh37')):
-        if args['liftover']:
-            logger.info('Insert liftOver columns to each dataframe')
-            dfs = preprocess.liftover_to_hg38(dfs, anno_sheets)
-        else:
-            logger.info('Skip liftover columns insertion.'
-                        f"Using {args['pos38']} column for position in hg38")
+    logger.info('Preprocess (liftover)')
+    dfs = preprocess.liftover_to_hg38(
+        dfs=dfs, args=args, anno_sheets=anno_sheets)
 
-    #------- Step 2. Insert URLs -------#
+    #------- Step 3. Insert URLs -------#
     # Insert URLs to each dataframe
     hl = hyperlink.Hyperlink(
         gene_symbol_col=args['gene_col'], 
@@ -80,7 +75,7 @@ def main():
         )
     
     for sheet in anno_sheets:
-        logger.info(f'Insert hyperlink columns to {sheet}')
+        logger.info(f'Insert URL columns to {sheet}')
         dfs.sheets[sheet] = hl.insert_urls(dfs.sheets[sheet])
     
     #------- Step 4. Write to temporary excel file -------#
@@ -89,14 +84,14 @@ def main():
     hyperlink.df_to_excel(dfs, tmp_file_path)
 
     #------- Step 5. Convert URL to Hyperlink using Openpyxl -------#
-    logger.info('Convert URL to Hyperlink using Openpyxl')
+    logger.info('Convert URLs to Hyperlinks using Openpyxl')
     wb = hyperlink.convert_url_to_hyperlink(
         input_excel=tmp_file_path, 
         anno_sheets=anno_sheets, 
         skip_sites=args['skip_sites'])
     
     #------- Step 6. Save the result as a new excel file -------#
-    logger.info('Save the result as a new excel file')
+    logger.info('Saving the result as a new excel file......')
     wb.save(args['output'])
     wb.close()
     os.remove(tmp_file_path)
