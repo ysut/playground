@@ -201,37 +201,45 @@ class Hyperlink:
         else:
             return urllib.parse.quote(url)
     
-    def insert_hyperlinks(self, df: pd.DataFrame) -> pd.DataFrame:
+    def insert_urls(self, df: pd.DataFrame) -> pd.DataFrame:
         # Insert hyperlinks
         if 'HGMD' not in self.skip_sites:
-            df['HGMD'] = df.parallel_apply(
-                self.__generate_hgmd_url, axis=1)
+            if self.gene_symbol_col in df.columns:
+                df['HGMD'] = df.parallel_apply(
+                    self.__generate_hgmd_url, axis=1)
+            else:
+                logger.warning("Skip HGMD URL insertion. "
+                               f"{self.gene_symbol_col} column is not found.")
         else:
-            self.logger.info("Skip HGMD hyperlink insertion")
+            self.logger.info("Skip HGMD URL insertion")
         
         if 'Franklin' not in self.skip_sites:
             df['Franklin'] = df.parallel_apply(
                 self.__generate_franklin_url, axis=1)
         else:
-            self.logger.info("Skip Franklin hyperlink insertion")
+            self.logger.info("Skip Franklin URL insertion")
         
         if 'DECIPHER' not in self.skip_sites:
-            df['DECIPHER'] = df.parallel_apply(
-                self.__generate_decipher_url, axis=1)
+            if self.gene_symbol_col in df.columns:
+                df['DECIPHER'] = df.parallel_apply(
+                    self.__generate_decipher_url, axis=1)
+            else:
+                logger.warning("Skip DECIPHER URL insertion. "
+                               f"{self.gene_symbol_col} column is not found.")
         else:
-            self.logger.info("Skip DECIPHER hyperlink insertion")
+            self.logger.info("Skip DECIPHER URL insertion")
 
         if 'SpliceAI' not in self.skip_sites:
             df['SpliceAI_Lookup'] = df.parallel_apply(
                 self.__generate_spliceailookup_url, axis=1)
         else:
-            self.logger.info("Skip SpliceAI lookup hyperlink insertion")
+            self.logger.info("Skip SpliceAI lookup URL insertion")
 
         if 'UCSC' not in self.skip_sites:
             df['UCSC'] = df.parallel_apply(
                 self.__generate_ucsc_url, axis=1)
         else:
-            self.logger.info("Skip UCSC hyperlink insertion")
+            self.logger.info("Skip UCSC URL insertion")
 
         # Reorder columns
         df = self.__rearrange_cols(df)

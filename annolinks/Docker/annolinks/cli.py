@@ -24,10 +24,8 @@ def main():
     raw_args = parser_setting()
     args = analyze_args(raw_args)
     
-    #------- Step 1. Insert hyperlink columns to each dataframe -------#
-    logger.info('Insert hyperlink columns to each dataframe')
-    
-    #1-1. Load excel file as df(dataclass) and get sheet names
+    #------- Step 1. Load an input file and Check the file format -------#
+    #1-1. Load an excel file and get sheet names
     logger.info(f"Load {args['input']}")
     dfs = hyperlink.load_excel_as_dataclass(args['input'])
     
@@ -37,18 +35,26 @@ def main():
         skip_sheets=args['skip_sheets']
         )
     
-    #1-3. Check required columns and hyperlink limitation
+    #1-3. Error check
     ec = errcheck.ErrorCheck(dfs=dfs, anno_sheets=anno_sheets, 
                              skip_sites=args['skip_sites'], args=args)
-    logger.info('Check required columns')
     
+    logger.info('Check specified columns (HGMD, DECIPHER, ...)')
+    if ec.has_specified_columns():
+        sys.exit(1)
+    
+    logger.info('Check required columns (CHROM, POS, REF, and ALT)')
+    if not ec.has_required_columns():
+        sys.exit(1)
 
     logger.info('Check hyperlink limitation')
     if not ec.is_within_limit():
         sys.exit(1)
 
     
-    #1-4. Insert liftover columns to each dataframe
+    #------- Step 2. Preprocess -------#
+    #2. Insert liftover columns to each dataframe
+    logger.info('Insert hyperlink columns to each dataframe')
     if ((args['assembly'] == 'hg19') | (args['assembly'] == 'GRCh37')):
         if args['liftover']:
             logger.info('Insert liftOver columns to each dataframe')
@@ -57,7 +63,8 @@ def main():
             logger.info('Skip liftover columns insertion.'
                         f"Using {args['pos38']} column for position in hg38")
 
-    #1-4. Insert hyperlink columns to each dataframe
+    #------- Step 2. Insert URLs -------#
+    # Insert URLs to each dataframe
     hl = hyperlink.Hyperlink(
         gene_symbol_col=args['gene_col'], 
         alt_col=args['alt_col'],
@@ -74,26 +81,27 @@ def main():
     
     for sheet in anno_sheets:
         logger.info(f'Insert hyperlink columns to {sheet}')
-        dfs.sheets[sheet] = hl.insert_hyperlinks(dfs.sheets[sheet])
+        dfs.sheets[sheet] = hl.insert_urls(dfs.sheets[sheet])
     
-    #------- Step 2. Write to temporary excel file -------#
+    #------- Step 4. Write to temporary excel file -------#
     tmp_file_path: str = args['input'].stem + '_tmp.xlsx'
     logger.info(f'Write to {tmp_file_path} for temporary use')
     hyperlink.df_to_excel(dfs, tmp_file_path)
 
-    #------- Step 3. Convert URL to Hyperlink using Openpyxl -------#
+    #------- Step 5. Convert URL to Hyperlink using Openpyxl -------#
     logger.info('Convert URL to Hyperlink using Openpyxl')
     wb = hyperlink.convert_url_to_hyperlink(
         input_excel=tmp_file_path, 
         anno_sheets=anno_sheets, 
         skip_sites=args['skip_sites'])
     
-    #------- Step 4. Save the result as a new excel file -------#
+    #------- Step 6. Save the result as a new excel file -------#
     logger.info('Save the result as a new excel file')
     wb.save(args['output'])
     wb.close()
     os.remove(tmp_file_path)
-
+    logger.info(f"Saved as {args['output']}")
+    logger.info('Done')
 
 
 

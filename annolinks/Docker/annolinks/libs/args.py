@@ -164,7 +164,7 @@ def analyze_args(args: dict) -> dict:
     logger.info(
         f"""
 
-                              ## Arguments ##
+                              ## Arguments and Options ##
                               Input         : {parsed_args['input']}
                               Output        : {parsed_args['output']}
                               Assembly      : {parsed_args['assembly']}
