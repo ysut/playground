@@ -5,7 +5,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 def parser_setting() -> dict:
-    parser = argparse.ArgumentParser(description = 'WES')
+    parser = argparse.ArgumentParser(description='Insert hyperlinks to excel file')
     
     #1 Input
     parser.add_argument('--input', '-I', required=True, type=pathlib2.Path, 
@@ -83,7 +83,12 @@ def parser_setting() -> dict:
     parser.add_argument('--windows', required=False,
                         action='store_true', default=False, dest='windowsFlag',
                         help='For using on Windows OS')
-                        
+
+    #16 Split ALT column
+    parser.add_argument('--split-alt', required=False,
+                        action='store_true', default=False, dest='splitALTFlag',
+                        help='Split ALT column by comma')
+
     return vars(parser.parse_args())
 
 

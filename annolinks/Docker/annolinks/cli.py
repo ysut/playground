@@ -5,6 +5,8 @@ from logging import getLogger, config
 import yaml
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'libs'))
+import preprocess
+import errcheck
 import hyperlink
 from args import parser_setting, analyze_args
 
@@ -16,7 +18,6 @@ def main():
     #------- logging setting -------#
     with open(config_path, 'r') as f:
         config.dictConfig(yaml.safe_load(f))
-        
     logger = getLogger(__name__)
 
     #------- args setting -------#
@@ -27,7 +28,7 @@ def main():
     logger.info('Insert hyperlink columns to each dataframe')
     
     #1-1. Load excel file as df(dataclass) and get sheet names
-    logger.info(f'Load {args["input"]}')
+    logger.info(f"Load {args['input']}")
     dfs = hyperlink.load_excel_as_dataclass(args['input'])
     
     #1-2. Generate a sheet names list for annotation
@@ -36,7 +37,27 @@ def main():
         skip_sheets=args['skip_sheets']
         )
     
-    #1-3. Insert hyperlink columns to each dataframe
+    #1-3. Check required columns and hyperlink limitation
+    ec = errcheck.ErrorCheck(dfs=dfs, anno_sheets=anno_sheets, 
+                             skip_sites=args['skip_sites'], args=args)
+    logger.info('Check required columns')
+    
+
+    logger.info('Check hyperlink limitation')
+    if not ec.is_within_limit():
+        sys.exit(1)
+
+    
+    #1-4. Insert liftover columns to each dataframe
+    if ((args['assembly'] == 'hg19') | (args['assembly'] == 'GRCh37')):
+        if args['liftover']:
+            logger.info('Insert liftOver columns to each dataframe')
+            dfs = preprocess.liftover_to_hg38(dfs, anno_sheets)
+        else:
+            logger.info('Skip liftover columns insertion.'
+                        f"Using {args['pos38']} column for position in hg38")
+
+    #1-4. Insert hyperlink columns to each dataframe
     hl = hyperlink.Hyperlink(
         gene_symbol_col=args['gene_col'], 
         alt_col=args['alt_col'],

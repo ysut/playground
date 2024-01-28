@@ -68,7 +68,8 @@ class Hyperlink:
         """ 
         When multiple genes are listed (e.g. overlaping regions), 
         use a first gene symbol.
-        * Gene symbols should be separated by comma, semicolon, colon, pipe, or slash.
+        * Gene symbols should be separated by comma, semicolon, 
+          colon, pipe, or slash.
         """
         try:
             candidate_genes = re.split('[,;:|/]', gene_info)
@@ -103,7 +104,7 @@ class Hyperlink:
     
 
     #1 HGMD
-    def __generate_hgmd_url(self, row):
+    def __generate_hgmd_url(self, row):        
         base_url = f"https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/gene.php"
         url: str = (
             f"{base_url}"
