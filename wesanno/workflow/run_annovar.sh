@@ -11,9 +11,35 @@ ANNOVAR_DB="/path/to/annovar_db"
 	--operation g,f,f,f,f,f,f,f,f,f,f,f,f,r,r,r,r,f,f \
 	--vcfdbfile hg19_snpHGVD20170303.txt,hg19_ABRaOM_fix.txt \
 	--vcfinput ${ANNOVAR_DB} \
-	-bedfile hg19_hgmdAllMut.bed,hg19_hgmdAllMut-collapse.bed \
+	--bedfile hg19_hgmdAllMut.bed,hg19_hgmdAllMut-collapse.bed \
 	-arg '--splicing_threshold $(SPLICING_THRESHOLD),,-colsWanted 4,-colsWanted 4,,,,-infoasscore,-infoasscore,,,,,,' \
 	--remove \
 	--nastring . \
 	--otherinfo
 
+
+
+<< COMMENTOUT
+Gene-based annotation
+1. refGene
+2. ensGene41
+
+Filter-based annotation
+1. clinvar_20221231
+2. dbnsfp42a
+3. gnomad211_exome
+4. gnomda211_genome
+5. esp6500siv2_all
+6. gme
+7. 
+
+VCF-based annotation
+
+
+BED-based annotation
+1. hg19_hgmdAllMut
+2. hg19_hgmdAllMut-collapse
+
+
+
+COMMENTOUT
