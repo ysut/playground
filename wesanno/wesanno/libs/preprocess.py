@@ -6,7 +6,7 @@ import pandas as pd
 from typing import NamedTuple
 from pandarallel import pandarallel
 
-from liftover import get_lifter
+# from liftover import get_lifter
 
 from logging import getLogger
 logger = getLogger(__name__)
