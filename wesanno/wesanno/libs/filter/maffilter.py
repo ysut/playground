@@ -5,6 +5,8 @@ class MafFilter:
     def __init__(self, df, mode_samples_info, configs):
         self.df = df
         self.mode = mode_samples_info.mode
+        self.config = configs
+
 
     def __extract_1_percent_inhouse(self, df: pd.DataFrame) -> pd.DataFrame:
         df.loc[
@@ -71,9 +73,14 @@ class MafFilter:
     def __extract_custom_maf_filter(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         """
-        cutoffs = self.conifg
+        # cutoffs = self.conifgs
         return df
 
+
+    def __exclude_nonflagged_snps(self, df: pd.DataFrame) -> pd.DataFrame:
+        df.loc[df['snp138NonFlagged'] == '.', 'FlaggedSNP_FILTER'] = 'PASS'
+        
+        return df
 
 
     def all_filtering(self):
@@ -81,4 +88,6 @@ class MafFilter:
         self.df = self.__extract_1_percent_inhouse(self.df)
         self.df = self.__extract_01_percent(self.df)
         self.df = self.__extract_1_percent(self.df)
+        self.df = self.__exclude_nonflagged_snps(self.df)
+
         return self.df

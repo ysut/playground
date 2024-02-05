@@ -15,17 +15,13 @@ class QcFilter:
 
         return df
     
+
     def __exclude_low_dp(self, df: pd.DataFrame) -> pd.DataFrame:
         df.loc[df['DP'] >= self.dp, 'DP_FILTER'] = 'PASS'
 
         return df
-    
-    def __exclude_low_ab(self, df: pd.DataFrame) -> pd.DataFrame: 
-        # Allele balance filter
-        # AB>=0.2 for heterozygotes
-        pass
-    
-    
+        
+        
     def exclude_low_quality(self, df:pd.DataFrame) -> pd.DataFrame:
         df = self.__exclude_low_gq(df)
         df = self.__exclude_low_dp(df)
