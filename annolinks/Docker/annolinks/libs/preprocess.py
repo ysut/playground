@@ -29,7 +29,12 @@ def is_liftover_needed(df: pd.DataFrame, args: dict) -> bool:
 
 def liftover_process(row) -> int:
     converter = get_lifter('hg19', 'hg38')
-    return converter[row['CHROM']][row['POS']][0][1]
+    try:   
+        result = converter[row['CHROM']][row['POS']][0][1]
+        return result
+    except IndexError:
+        logger.warning(f"Failed to liftover ({row['CHROM']}:{row['POS']})")
+        return np.nan
 
 
 def liftover_to_hg38(dfs: dataclasses.dataclass, args: dict,
