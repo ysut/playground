@@ -190,17 +190,17 @@ class PreProcessExomeSummary:
 
 
     def all_pre_processing(self):
-        if ((self.args['assembly'] == 'hg19') 
-            | (self.args['assembly'] == 'GRCh37')):
-            logger.info('Liftover to hg38 is started ...')
-            logger.info('It takes about 5 minutes.')
-            self.df['POS_hg38'] = self.df.parallel_apply(
-                self.liftover_to_hg38, axis=1)
-            logger.info('Liftover to hg38 is finished.')
-        else:
-            logger.info(f"No liftover to hg38 "
-                        f"(Assembly is {self.args['assembly']}).")
-            pass
+        # if ((self.args['assembly'] == 'hg19') 
+        #     | (self.args['assembly'] == 'GRCh37')):
+        #     logger.info('Liftover to hg38 is started ...')
+        #     logger.info('It takes about 5 minutes.')
+        #     self.df['POS_hg38'] = self.df.parallel_apply(
+        #         self.liftover_to_hg38, axis=1)
+        #     logger.info('Liftover to hg38 is finished.')
+        # else:
+        #     logger.info(f"No liftover to hg38 "
+        #                 f"(Assembly is {self.args['assembly']}).")
+        #     pass
 
         # Extract InHouse MAF
         logger.info('Extract InHouse MAF')
