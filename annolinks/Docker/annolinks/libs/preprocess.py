@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from pandarallel import pandarallel
 import numpy as np
-from liftover import get_lifter
+from liftover import ChainFile
 from logging import getLogger
 
 pandarallel.initialize(
@@ -28,7 +28,9 @@ def is_liftover_needed(df: pd.DataFrame, args: dict) -> bool:
             
 
 def liftover_process(row) -> int:
-    converter = get_lifter('hg19', 'hg38')
+    # Chain file path in the Docker container is hard-coded
+    chain_file = '/annolinks/Docker/annolinks/resources/hg19ToHg38.over.chain.gz'
+    converter = ChainFile(chain_file, 'hg19', 'hg38')
     try:   
         result = converter[row['CHROM']][row['POS']][0][1]
         return result
