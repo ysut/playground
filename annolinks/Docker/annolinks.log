@@ -1,13 +1,15 @@
-2024/02/08 07:20:54 [INFO   ] (annolinks.cli:46) - Check required columns (CHROM, POS, REF, and ALT (or sepcified ALT column name))
-2024/02/08 07:20:54 [INFO   ] (errcheck:56) - All required columns are found.
-2024/02/08 07:20:54 [INFO   ] (annolinks.cli:51) - Check hyperlink limitation
-2024/02/08 07:20:54 [INFO   ] (errcheck:77) - Total number of hyperlinks are 2785.
-2024/02/08 07:20:54 [INFO   ] (annolinks.cli:57) - Preprocess (liftover)
-2024/02/08 07:20:54 [INFO   ] (preprocess:46) - Inserting liftover columns ('POS_hg38') to Sheet1
-2024/02/08 07:21:07 [INFO   ] (annolinks.cli:78) - Insert URL columns to Sheet1
-2024/02/08 07:21:07 [INFO   ] (hyperlink:105) - Hyperlink columns: ['HGMD', 'Franklin', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC']
-2024/02/08 07:21:07 [INFO   ] (annolinks.cli:83) - Write to undetermined_vus_tmp.xlsx for temporary use
-2024/02/08 07:21:09 [INFO   ] (annolinks.cli:87) - Convert URLs to Hyperlinks using Openpyxl
-2024/02/08 07:21:10 [INFO   ] (annolinks.cli:94) - Saving the result as a new excel file......
-2024/02/08 07:21:12 [INFO   ] (annolinks.cli:98) - Saved as /input/undetermined_vus_hyperlinked.xlsx
-2024/02/08 07:21:12 [INFO   ] (annolinks.cli:99) - Done
+2024/02/08 08:36:12 [INFO   ] (annolinks.cli:42) - Check specified columns (HGMD, DECIPHER, ...)
+2024/02/08 08:36:12 [INFO   ] (errcheck:38) - All specified columns are not found.
+2024/02/08 08:36:12 [INFO   ] (annolinks.cli:46) - Check required columns (CHROM, POS, REF, and ALT (or sepcified ALT column name))
+2024/02/08 08:36:12 [INFO   ] (errcheck:56) - All required columns are found.
+2024/02/08 08:36:12 [INFO   ] (annolinks.cli:51) - Check hyperlink limitation
+2024/02/08 08:36:12 [INFO   ] (errcheck:77) - Total number of hyperlinks are 940.
+2024/02/08 08:36:12 [INFO   ] (annolinks.cli:57) - Preprocess (liftover)
+2024/02/08 08:36:12 [INFO   ] (preprocess:47) - Inserting liftover columns ('POS_hg38') to Sheet1
+2024/02/08 08:36:18 [INFO   ] (annolinks.cli:78) - Insert URL columns to Sheet1
+2024/02/08 08:36:18 [INFO   ] (hyperlink:105) - Hyperlink columns: ['HGMD', 'Franklin', 'DECIPHER', 'SpliceAI_Lookup', 'UCSC']
+2024/02/08 08:36:18 [INFO   ] (annolinks.cli:83) - Write to undetermined_patho_tmp.xlsx for temporary use
+2024/02/08 08:36:18 [INFO   ] (annolinks.cli:87) - Convert URLs to Hyperlinks using Openpyxl
+2024/02/08 08:36:19 [INFO   ] (annolinks.cli:94) - Saving the result as a new excel file......
+2024/02/08 08:36:19 [INFO   ] (annolinks.cli:98) - Saved as /input/undetermined_patho_hyperlinked.xlsx
+2024/02/08 08:36:19 [INFO   ] (annolinks.cli:99) - Done
