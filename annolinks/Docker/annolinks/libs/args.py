@@ -97,6 +97,7 @@ def analyze_args(args: dict) -> dict:
     parsed_args['spliceai_maskFlag'] = args['maskFlag']
     parsed_args['spliceai_dist'] = args['spliceai_dist']
     parsed_args['windowsFlag'] = args['windowsFlag']
+    parsed_args['splitALTFlag'] = args['splitALTFlag']
 
     # Output    
     if args['output'] is None:

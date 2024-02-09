@@ -19,7 +19,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 @dataclass
-class ExcelSheets:
+class ExcelSheetsDF:
     sheets: dict
 
 
@@ -253,14 +253,14 @@ class Hyperlink:
 
         return df
 
-def load_excel_as_dataclass(input_execl) -> ExcelSheets:
+def load_excel_as_dataclass(input_execl) -> ExcelSheetsDF:
     exl = pd.ExcelFile(input_execl)       # Load input excel file
     sheet_names: list = exl.sheet_names   # Get all sheet names
     sheets: dict = {
         sheet_name: exl.parse(sheet_name) for sheet_name in sheet_names
         }
 
-    return ExcelSheets(sheets=sheets)
+    return ExcelSheetsDF(sheets=sheets)
 
 
 def generate_anno_sheets_list(input_sheets: list, skip_sheets: list) -> list:    
@@ -271,7 +271,7 @@ def generate_anno_sheets_list(input_sheets: list, skip_sheets: list) -> list:
     return anno_sheets
 
 
-def df_to_excel(dfs: dataclass, output_xlsx) -> None:
+def df_to_excel(dfs: ExcelSheetsDF, output_xlsx) -> None:
     with pd.ExcelWriter(output_xlsx, engine='openpyxl') as writer:
         for sheet in tqdm(dfs.sheets):
             dfs.sheets[sheet].to_excel(writer, sheet_name=sheet, index=False)

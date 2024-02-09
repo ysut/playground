@@ -57,6 +57,10 @@ def main():
     logger.info('Preprocess (liftover)')
     dfs = preprocess.liftover_to_hg38(
         dfs=dfs, args=args, anno_sheets=anno_sheets)
+    
+    #3. Split ALT column
+    logger.info('Preprocess (split ALT)')
+    
 
     #------- Step 3. Insert URLs -------#
     # Insert URLs to each dataframe

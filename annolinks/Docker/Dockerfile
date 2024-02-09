@@ -1,6 +1,7 @@
 FROM python:3.12.1-slim-bullseye
 
 ENV PYTHONPATH=${PYTHONPATH}:/app
+ARG BASE_URL="ftp://hgdownload.soe.ucsc.edu/goldenPath"
 
 WORKDIR /app
 
@@ -14,6 +15,9 @@ RUN set -ex \
         > /dev/null \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /app/resources \
+    && curl -sSL -o /app/resources/hg19ToHg38.over.chain.gz \
+        "${BASE_URL}"/hg19/liftOver/hg19ToHg38.over.chain.gz \
     && pip install --upgrade pip \
     && pip install --no-cache-dir \
         numpy openpyxl pandas pandarallel tqdm pathlib2 pyyaml liftover
