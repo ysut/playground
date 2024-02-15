@@ -53,18 +53,18 @@ def main():
         sys.exit(1)
 
     #------- Step 2. Preprocess -------#
-    #2. Insert liftover columns to each dataframe
+    #2-1. Insert liftover columns to each dataframe
     logger.info('Preprocess (liftover)')
     dfs = preprocess.liftover_to_hg38(
         dfs=dfs, args=args, anno_sheets=anno_sheets)
     
-    #3. Split ALT column
+    #2-2. Split ALT column
     logger.info('Preprocess (split ALT)')
     dfs = preprocess.split_alt_col(
         dfs=dfs, args=args, anno_sheets=anno_sheets)
 
+
     #------- Step 3. Insert URLs -------#
-    # Insert URLs to each dataframe
     hl = hyperlink.Hyperlink(
         gene_symbol_col=args['gene_col'], 
         alt_col=args['alt_col'],
@@ -79,6 +79,7 @@ def main():
         windowsFlag=args['windowsFlag']
         )
     
+    # Insert URLs to each dataframe
     for sheet in anno_sheets:
         logger.info(f'Insert URL columns to {sheet}')
         dfs.sheets[sheet] = hl.insert_urls(dfs.sheets[sheet])
