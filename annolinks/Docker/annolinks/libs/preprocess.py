@@ -61,11 +61,12 @@ def is_split_alt_needed(args: dict) -> bool:
         if args['splitALTFlag']:
             return True
         else:
-            logger.info('Skip split ALT column step. Using specified ALT column as is.')
+            logger.info('Skip split ALT column step. '
+                        'Using specified ALT column as is.')
             return False
         
 
-def split_alt_process(dfs:ExcelSheetsDF, anno_sheets: list) ->ExcelSheetsDF:
+def split_alt_process(dfs:ExcelSheetsDF, anno_sheets: list) -> ExcelSheetsDF:
     for sheet in anno_sheets:
         df = dfs.sheets[sheet]
         columns: list = list(df.columns) + ['SplitALT']
@@ -84,7 +85,7 @@ def split_alt_process(dfs:ExcelSheetsDF, anno_sheets: list) ->ExcelSheetsDF:
 
 
 def split_alt_col(
-        dfs:ExcelSheetsDF, args: dict, anno_sheets: list) ->ExcelSheetsDF:
+        dfs:ExcelSheetsDF, args: dict, anno_sheets: list) -> ExcelSheetsDF:
     if is_split_alt_needed(args):
         logger.info('Split ALT column processing ......')
         dfs = split_alt_process(dfs, anno_sheets)

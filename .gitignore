@@ -47,5 +47,9 @@ Cargo.lock
 # vscode
 .vscode/
 
+# log files
+*.log
+*.log*
+
 # Chain files
 *.chain.gz

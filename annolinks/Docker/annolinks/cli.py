@@ -60,7 +60,8 @@ def main():
     
     #3. Split ALT column
     logger.info('Preprocess (split ALT)')
-    
+    dfs = preprocess.split_alt_col(
+        dfs=dfs, args=args, anno_sheets=anno_sheets)
 
     #------- Step 3. Insert URLs -------#
     # Insert URLs to each dataframe
