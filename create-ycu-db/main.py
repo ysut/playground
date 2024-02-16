@@ -67,8 +67,14 @@ def load_excel_file(old_excel: str, new_excel: str, mailed_excel: str) -> DFs:
 
     rename_dict = {
         'YCU ID': 'YCU_ID', 'YCUID': 'YCU_ID', 
-        'DNA ID': 'DNA_ID', 'DNAID': 'DNA_ID'
+        'DNA ID': 'DNA_ID', 'DNAID': 'DNA_ID', 
+        '検体拝受日': 'Date', 'ProbandID': 'Proband_DNA_ID', 
+        '診断名': 'Diagnosis', '病名': 'Diagnosis',  
+        'Gene': 'Identified_Gene', '解析結果(遺伝子名)': 'Identified_Gene',
+        'WES batch': 'WES_batch', '家族関係': 'Family_relation',
+        'father DNA ID': 'Father_DNA_ID', 'mother DNA ID': 'Mother_DNA_ID'
         }
+    
     df.rename(columns=rename_dict, inplace=True)
     df_old.rename(columns=rename_dict, inplace=True)
     df_mailed.rename(columns=rename_dict, inplace=True)
