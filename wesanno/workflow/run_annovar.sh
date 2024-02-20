@@ -1,7 +1,7 @@
-ANNOVAR="/path/to/table_annovar.pl"
+ANNOVAR="/usr/local/bio/src/annovar202203/table_annovar.pl"
 INPUT_VCF="/path/to/input.vcf"
 ASSEMBLY="hg19"
-ANNOVAR_DB="/path/to/annovar_db"
+ANNOVAR_DB="/betelgeuse04/analysis/utsu/resources/annovar/hg19"
 
 "${ANNOVAR}" "${INPUT_VCF}" \
     --buildver ${ASSEMBLY} \
@@ -18,7 +18,6 @@ ANNOVAR_DB="/path/to/annovar_db"
 	--otherinfo
 
 
-
 << COMMENTOUT
 Gene-based annotation
 1. refGene
@@ -31,14 +30,16 @@ Filter-based annotation
 4. gnomda211_genome
 5. esp6500siv2_all
 6. gme
-7. 
+7. revel
+8. mcap
 
 VCF-based annotation
-
+1. hg19_snpHGVD20170303.txt		-infoasscore
+2. hg19_ABRaOM_fix.txt			-infoasscore
 
 BED-based annotation
-1. hg19_hgmdAllMut
-2. hg19_hgmdAllMut-collapse
+1. hg19_hgmdAllMut				-colsWanted 4
+2. hg19_hgmdAllMut-collapse		-colsWanted 4
 
 
 
