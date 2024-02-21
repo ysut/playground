@@ -1,0 +1,5 @@
+[columns]
+bed = "HGMD_AllMut_202303"
+bed2 = "HGMD_AllMut-collapse"
+vcf = "SpliceAI"
+vcf2 = "HGVD"
