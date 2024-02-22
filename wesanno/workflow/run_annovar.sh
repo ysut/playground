@@ -20,26 +20,26 @@ ANNOVAR_DB="/betelgeuse04/analysis/utsu/resources/annovar/hg19"
 
 << COMMENTOUT
 Gene-based annotation
-1. refGene
+#1. refGene
 2. ensGene41
 
 Filter-based annotation
-1. clinvar_20221231
-2. dbnsfp42a
-3. gnomad211_exome
-4. gnomda211_genome
-5. esp6500siv2_all
-6. gme
+#1. clinvar_20221231
+#2. dbnsfp42a
+#3. gnomad211_exome
+#4. gnomda211_genome
+#5. esp6500siv2_all
+#6. gme
 7. revel
 8. mcap
 
 VCF-based annotation
-1. hg19_snpHGVD20170303.txt		-infoasscore
-2. hg19_ABRaOM_fix.txt			-infoasscore
+#1. hg19_snpHGVD20170303.txt		-infoasscore
+#2. hg19_ABRaOM_fix.txt			-infoasscore
 
 BED-based annotation
-1. hg19_hgmdAllMut				-colsWanted 4
-2. hg19_hgmdAllMut-collapse		-colsWanted 4
+#1. hg19_hgmdAllMut				-colsWanted 4
+#2. hg19_hgmdAllMut-collapse		-colsWanted 4
 
 
 

@@ -1,4 +1,4 @@
-module anvr
+module annomap
 
 go 1.22.0
 
