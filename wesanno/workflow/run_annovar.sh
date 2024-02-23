@@ -21,7 +21,7 @@ ANNOVAR_DB="/betelgeuse04/analysis/utsu/resources/annovar/hg19"
 << COMMENTOUT
 Gene-based annotation
 #1. refGene
-2. ensGene41
+2. ensGene41 x
 
 Filter-based annotation
 #1. clinvar_20221231
