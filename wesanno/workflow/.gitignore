@@ -2,3 +2,4 @@
 work/
 Makefile*
 *.sh
+exome_*
