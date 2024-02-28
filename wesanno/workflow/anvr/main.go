@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -17,10 +18,12 @@ func main() {
 	// Check number of args
 	if len(os.Args) < 3 {
 		fmt.Println("Please enter an input file and a config file path.")
+		fmt.Println("Usage: anvrenamefilter <input.txt> <config.toml>")
 		os.Exit(1)
 	}
-	configPath := os.Args[2]
 
+	// Read a config file
+	configPath := os.Args[2]
 	var config Config
 	if _, err := toml.DecodeFile(configPath, &config); err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
@@ -28,13 +31,12 @@ func main() {
 	}
 
 	// #1. Get sample names from VCF
-	vcfPath := strings.TrimSuffix(os.Args[1], ".txt") + ".vcf"
+	txtPath := os.Args[1]
+	vcfPath := strings.TrimSuffix(txtPath, ".txt") + ".vcf"
 	var samples []string = GetSamples(vcfPath)
 
-	// #2. Rename columns in txt
-	// Rename columns and return lines to write a new txt
-	txtPath := os.Args[1]
-	var lines = RenameProcess(txtPath, samples, config.RenameMap)
+	// #2. Rename columns and extract exome variants
+	var lines = RenameFilterProcess(txtPath, samples, config.RenameMap)
 
 	// #3. Write a new txt
 	outPath := strings.TrimSuffix(txtPath, ".txt") + ".renamed.txt"
@@ -42,11 +44,11 @@ func main() {
 }
 
 // Functions
+// Have not been refactored yet -> ToDo: Refactoring these functions
 func ChangeColName(colNames []string, renameMap map[string]string) []string {
 	for i, colName := range colNames {
 		for key, value := range renameMap {
 			if colName == key {
-				// Change column name to value
 				colNames[i] = value
 			}
 		}
@@ -54,45 +56,103 @@ func ChangeColName(colNames []string, renameMap map[string]string) []string {
 	return colNames
 }
 
-func RenameProcess(txtPath string, samples []string, renamemap map[string]string) []string {
+func GetColumnIndex(colNames []string, target string) int {
+	for i, colName := range colNames {
+		if colName == target {
+			return i
+		}
+	}
+	return -1
+}
+
+func GenerateNewColNames(colNames []string, samples []string) []string {
+	var trimedCols []string
+	for _, colName := range colNames {
+		trimedCols = append(trimedCols, colName)
+		if colName == "Otherinfo1" {
+			break
+		}
+	}
+	vcflikeCols := []string{
+		"Otherinfo2", "Otherinfo3", "CHROM", "POS", "ID",
+		"REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT",
+	}
+	newCols := append(append(trimedCols, vcflikeCols...), samples...)
+
+	return newCols
+}
+
+func RenameFilterProcess(txtPath string, samples []string, renamemap map[string]string) []string {
 	// Open a file annotated by ANNOVAR
 	txtFile, err := os.Open(txtPath)
 	ErrCheck(err, "Cannot open input file: "+txtPath)
 	defer txtFile.Close()
 
-	// Scan rows of input txt
+	// Define a variable to store lines of the new txt
 	var lines []string
+
+	// Define variables to store the index of "CHROM" and "Func.refGene"
+	// Intialize with -1
+	var chromIndex, funcIndex int = -1, -1
+
+	// Define slice to store the chromosomal values and the functional annotations
+	chromValues := []string{
+		"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+		"11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+		"21", "22", "X", "Y",
+	}
+
+	functionalAnnotations := []string{
+		"exonic", "splicing", "exonic;splicing",
+	}
+
+	// Scan rows of input txt
 	txtScanner := bufio.NewScanner(txtFile)
 	lineNum := 0
+
 	for txtScanner.Scan() {
+		var line string = txtScanner.Text()
+		var rows []string = strings.Split(line, "\t")
+
 		if lineNum == 0 {
-			// Get all column names and deliminate by tab
-			colNames := strings.Split(txtScanner.Text(), "\t")
-			// Change column names in "bed" and "bed2"
-			colNames = ChangeColName(colNames, renamemap)
+			// 1st process: Change column names
+			// Change column names as defined in the config file
+			var colNames []string = ChangeColName(rows, renamemap)
 
-			// Get column names until "Otherinfo1"
-			var trimedCols []string
-			for _, colName := range colNames {
-				trimedCols = append(trimedCols, colName)
-				if colName == "Otherinfo1" {
-					break
-				}
+			// 2nd process: Get the index of "CHROM" and "Func.refGene"
+			chromIndex = GetColumnIndex(colNames, "Chr")
+			funcIndex = GetColumnIndex(colNames, "Func.refGene")
+			if chromIndex == -1 || funcIndex == -1 {
+				log.Fatal("Cannot find 'CHROM' or 'Func.refGene' in the input file")
 			}
 
-			// Create a silice including VCF like columns
-			vcflikeCols := []string{
-				"Otherinfo2", "Otherinfo3", "CHROM", "POS", "ID",
-				"REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT",
-			}
-			// Create a slice for header including all column names
-			newCols := append(append(trimedCols, vcflikeCols...), samples...)
-			// Delimitate by tab and add to lines
+			// 3rd process: Generate new column names
+			var newCols []string = GenerateNewColNames(colNames, samples)
+
+			// 4th process: Add new column names to lines
 			lines = append(lines, strings.Join(newCols, "\t"))
 
 		} else {
-			// Non header lines are added to lines without any change
-			lines = append(lines, txtScanner.Text())
+			chromValue := rows[chromIndex]
+			funcValue := rows[funcIndex]
+
+			// Pickup mitochondrial variants
+			if chromValue == "MT" {
+				lines = append(lines, line)
+				continue
+			}
+
+			// Liner search for the chromValue and funcValue
+			for _, funnanno := range functionalAnnotations {
+				if funcValue == funnanno {
+					for _, chrom := range chromValues {
+						if chromValue == chrom {
+							lines = append(lines, line)
+							break
+						}
+					}
+				}
+			}
 		}
 		lineNum++
 	}
