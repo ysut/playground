@@ -115,6 +115,7 @@ func RenameFilterProcess(txtPath string, samples []string, renamemap map[string]
 		var rows []string = strings.Split(line, "\t")
 
 		if lineNum == 0 {
+			// Column names processing
 			// 1st process: Change column names
 			// Change column names as defined in the config file
 			var colNames []string = ChangeColName(rows, renamemap)
@@ -133,6 +134,7 @@ func RenameFilterProcess(txtPath string, samples []string, renamemap map[string]
 			lines = append(lines, strings.Join(newCols, "\t"))
 
 		} else {
+			// Variant rows processing
 			chromValue := rows[chromIndex]
 			funcValue := rows[funcIndex]
 
