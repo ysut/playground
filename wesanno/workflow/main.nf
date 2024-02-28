@@ -1,16 +1,41 @@
 #!/usr/bin/env nextflow
+
 nextflow.enable.dsl=2
 
+params.workflow_WES = '/Users/utsu/work/Github/playground/wesanno/scripts'
 
-process ANALYZE {
+process SPLIT {
+    input:
+    path vcf
+
+    output:
+    path '*.part*'
+
+    script:
     """
-    python -m wesanno \
-    --input ${params.input} \
-    --output ${params.output} \
-    --resources ${params.resources} \
+    ${params.workflow_WES}/split.sh $vcf
+    """
+}
+
+process PRINT {
+    input:
+    path split_vcf
+
+    output:
+    stdout
+
+    script:
+    """
+    echo "Printing $split_vcf"
+    ${params.workflow_WES}/printhead.sh $split_vcf
     """
 }
 
 workflow {
-    ANALYZE()
+    input_vcf = Channel.fromPath(params.inputvcf)
+
+    splitFiles = SPLIT(input_vcf)
+    
+    PRINT(splitFiles)
+        .view { "Result: ${it.text}" }
 }
