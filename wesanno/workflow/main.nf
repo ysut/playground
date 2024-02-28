@@ -2,40 +2,53 @@
 
 nextflow.enable.dsl=2
 
-params.workflow_WES = '/Users/utsu/work/Github/playground/wesanno/scripts'
+params.workflow_WES = '/betelgeuse07/analysis/utsu/MyTools/workflow_WES'
 
 process SPLIT {
     input:
     path vcf
 
     output:
-    path '*.part*'
+    path 'split_*'
 
     script:
     """
-    ${params.workflow_WES}/split.sh $vcf
+    ${params.workflow_WES}/scripts/extract_chr_split_vcf.sh $vcf
     """
 }
 
-process PRINT {
+process SPLICEAI {
     input:
-    path split_vcf
+    path vcf
 
     output:
-    stdout
+    path 'spliceai_*.vcf'
+
+    container 'betelegeuse:5000/library/utsu:spliceai'
 
     script:
     """
-    echo "Printing $split_vcf"
-    ${params.workflow_WES}/printhead.sh $split_vcf
+    conda activate spliceai
+    spliceai \\
+      -I \$vcf \\
+      -O spliceai_\${vcf}.vcf \\
+      -R /resouces/ReferenceGenome/exome_pipeline/human_g1k_v37_fix.fasta \\
+      -A /resources/SAI10kcalc/SAI10kcalc_spliceai_tx.hg19.tsv \\
+      -D 4999 \\
+      -M 0
     """
 }
 
-workflow {
-    input_vcf = Channel.fromPath(params.inputvcf)
 
-    splitFiles = SPLIT(input_vcf)
-    
-    PRINT(splitFiles)
-        .view { "Result: ${it.text}" }
+workflow {
+    input_ch = Channel.fromPath(params.input)
+
+    SPLIT(input_ch)
+        .set{ splitFiles_ch }
+        
+    SPLICEAI(splitFiles_ch)
+        .set{ spliceaiFiles_ch }
+
+    spliceaiFiles_ch.view()
+
 }
