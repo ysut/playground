@@ -107,6 +107,7 @@ process HGMDANNOTATOR {
     run_hgmd_annotator ${txt} exome_summary.txt
     DATE=\$(date +'%Y%m%d_%H%M%S')
     mv exome_summary.txt exome_summary_\${DATE}.txt
+    mv exome_summary_\${DATE}.txt ${workflow.launchDir}/
     """
 }
 
