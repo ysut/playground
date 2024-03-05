@@ -1,20 +1,20 @@
 #!/usr/bin/env nextflow
+// Nextflow script to run the WES annotation workflow
 
 nextflow.enable.dsl=2
 
 params.input = ''
-params.workflow_WES = '/betelgeuse07/analysis/utsu/MyTools/workflow_WES'
 
 process SPLIT {
     input:
     path vcf
 
     output:
-    path 'split_*'
+    path 'chunk_*'
 
     script:
     """
-    ${params.workflow_WES}/scripts/extract_chr_split_vcf.sh $vcf
+    ${WORKFLOW_WES}/scripts/chrsplit.sh $vcf
     """
 }
 
@@ -37,33 +37,78 @@ process SPLICEAI {
     """
 }
 
-process CONCATNATE {
+process CONCATENATESORT {
     input:
-    path vcfs
+    path collected_vcfs
 
     output:
-    path 'splai.concat.pre_annovar.vcf'
-
+    path 'splai.concat.sort.pre_annovar.vcf'
 
     script:
     """
-    ${params.bcftools} concat \\
-      --output splai.merge.pre_annovar.vcf \\
+    bcftools concat \\
+      --output splai.concat.pre_annovar.vcf \\
       --output-type v \\
-      --threads 2 \\
-      ${vcfs}
+      --threads 4 \\
+      ${collected_vcfs}
+
+    bcftools sort \\
+      --max-mem 8G \\
+      --output-file splai.concat.sort.pre_annovar.vcf \\
+      --output-type v \\
+      splai.concat.pre_annovar.vcf
+    
     """
 }
 
 
-// process ANNOVAR {
-//     input
-//     path vcf
+process ANNOVAR {
+    input:
+    path pre_annovar_vcf
 
-//     output:
-//     path 'exome_test_refGene.hg19_multianno.*'
-// }
+    output:
+    tuple path( '*.txt' ), path( '*.vcf' ), emit: annovar_files
 
+    script:
+    """
+    ${WORKFLOW_WES}/scripts/run_annovar.sh \\
+      ${pre_annovar_vcf} \\
+      ${ANNOVAR_DB} \\
+      ${SPLICING_THRESHOLD}
+    """
+}
+
+
+process FORMATANNOVAR {
+    input:
+    tuple path(txt), path(vcf)
+
+    output:
+    path "${txt.baseName}.renamed.txt"
+
+    script:
+    """
+    ${WORKFLOW_WES}/bin/anvrenamefilter \\
+      ${txt} \\
+      ${WORKFLOW_WES}/config/rename.toml
+    """
+}
+
+
+process HGMDANNOTATOR {
+    input:
+    path txt
+
+    output:
+    path 'exome_summary_*.txt'
+
+    script:
+    """
+    run_hgmd_annotator ${txt} exome_summary.txt
+    DATE=\$(date +'%Y%m%d_%H%M%S')
+    mv exome_summary.txt exome_summary_\${DATE}.txt
+    """
+}
 
 workflow {
     input_ch = Channel.fromPath(params.input)
@@ -78,11 +123,20 @@ workflow {
 
     spliceaiFiles_ch
         .collect()
-        .set{ collectedSpliceaiFiles_ch }    
+        .set{ collectedSpliceaiFiles_ch }
 
-    CONCATNATE(collectedSpliceaiFiles_ch)
-        .set{ mergeFile_ch }
-    
-    mergeFile_ch.view()
+    CONCATENATESORT(collectedSpliceaiFiles_ch)
+        .set{ concatFile_ch }
+
+    ANNOVAR(concatFile_ch)
+        .set{ annovarFiles_ch }
+
+    FORMATANNOVAR(annovarFiles_ch)
+        .set{ renamedFile_ch }
+
+    HGMDANNOTATOR(renamedFile_ch)
+        .set{ hgmdAnnotatedFile_ch }
+
+    hgmdAnnotatedFile_ch.view()    
 
 }
