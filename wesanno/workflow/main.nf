@@ -71,7 +71,7 @@ process ANNOVAR {
 
     script:
     """
-    ${WORKFLOW_WES}/scripts/run_annovar.sh \\
+    ${WORKFLOW_WES}/scripts/run_annovar_wes_hg19.sh \\
       ${pre_annovar_vcf} \\
       ${ANNOVAR_DB} \\
       ${SPLICING_THRESHOLD}
@@ -107,9 +107,10 @@ process HGMDANNOTATOR {
     run_hgmd_annotator ${txt} exome_summary.txt
     DATE=\$(date +'%Y%m%d_%H%M%S')
     mv exome_summary.txt exome_summary_\${DATE}.txt
-    mv exome_summary_\${DATE}.txt ${workflow.launchDir}/
+    cp exome_summary_\${DATE}.txt ${workflow.launchDir}/
     """
 }
+
 
 workflow {
     input_ch = Channel.fromPath(params.input)

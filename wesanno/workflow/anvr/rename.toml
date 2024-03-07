@@ -1,5 +1,0 @@
-[columns]
-bed = "HGMD_AllMut"
-bed2 = "HGMD_AllMut-collapse"
-vcf = "HGVD"
-vcf2 = "ABraOM"
