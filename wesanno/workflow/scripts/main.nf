@@ -1,25 +1,23 @@
 #!/usr/bin/env nextflow
-// Nextflow script to run the WES annotation workflow
 
 nextflow.enable.dsl=2
 
 params.input = ''
-
 
 process VCFANNO {
     input:
     path vcf
 
     output:
-    path 'riker.private.novo.vcfanno.vcf'
+    path 'vcfanno.vcf'
 
     script:
     """
     vcfanno \\
-      -p 12 \\
-      ${WORKFLOW_WES}/config/vcfanno.toml \\
+      -p 8 \\
+      ${WORKFLOW_WES}/config/vcfanno_${ASSEMBLY}.toml \\
       $vcf \\
-      > riker.private.novo.vcfanno.vcf
+      > vcfanno.vcf
     """
 }
 
@@ -71,11 +69,10 @@ process CONCATENATESORT {
       ${collected_vcfs}
 
     bcftools sort \\
-      --max-mem 8G \\
       --output-file splai.concat.sort.pre_annovar.vcf \\
       --output-type v \\
+      --max-mem 8G \\
       splai.concat.pre_annovar.vcf
-    
     """
 }
 
@@ -89,7 +86,7 @@ process ANNOVAR {
 
     script:
     """
-    ${WORKFLOW_WES}/scripts/run_annovar_wes_hg19.sh \\
+    ${WORKFLOW_WES}/scripts/run_annovar_wes_${ASSEMBLY}.sh \\
       ${pre_annovar_vcf} \\
       ${ANNOVAR_DB} \\
       ${SPLICING_THRESHOLD}
@@ -106,7 +103,7 @@ process FORMATANNOVAR {
 
     script:
     """
-    ${WORKFLOW_WES}/bin/anvrenamefilter \\
+    ${WORKFLOW_WES}/bin/anvrformatter \\
       ${txt} \\
       ${WORKFLOW_WES}/config/rename.toml
     """
@@ -133,7 +130,10 @@ process HGMDANNOTATOR {
 workflow {
     input_ch = Channel.fromPath(params.input)
 
-    SPLIT(input_ch)
+    VCFANNO(input_ch)
+        .set{ vcfannoFile_ch }
+
+    SPLIT(vcfannoFile_ch)
         .flatMap{ file -> file }
         .set{ splitFiles_ch }
 
