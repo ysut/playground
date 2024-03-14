@@ -1,6 +1,8 @@
 [QC_Thresholds]
-GQ = 5
+GQ = 20
 DP = 5
+AB_het = 0.2
+AB_hom = 0.02
 
 [In_silico_predictions]
 # Thresholds for hard filter
@@ -9,5 +11,5 @@ PolyPhen-2 = 0.446
 exclude_MutationTaster = ["polymorphism_automatic", "polymorphism"]
 CADD = 10
 
-[MAF_Thresholds]
+[AF_Thresholds]
 GGM = 0.05
