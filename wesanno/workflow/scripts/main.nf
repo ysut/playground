@@ -4,6 +4,20 @@ nextflow.enable.dsl=2
 
 params.input = ''
 
+process GADO {
+    input:
+    path phenotypes
+
+    output:
+    path 'GADO_results/gado.txt'
+
+    script:
+    """
+    ${WORKFLOW_WES}/scripts/run_gado.sh $phenotypes ./GADO_results/gado.txt
+    """
+}
+
+
 process VCFANNO {
     input:
     path vcf
@@ -93,7 +107,6 @@ process ANNOVAR {
     """
 }
 
-
 process FORMATANNOVAR {
     input:
     tuple path(txt), path(vcf)
@@ -108,7 +121,6 @@ process FORMATANNOVAR {
       ${WORKFLOW_WES}/config/rename.toml
     """
 }
-
 
 process HGMDANNOTATOR {
     input:
@@ -128,6 +140,11 @@ process HGMDANNOTATOR {
 
 
 workflow {
+    phenotypes_ch = Channel.fromPath(./phenotypes.txt)
+    GADO(phenotypes_ch)
+        .set{ gadoFile_ch }
+    gadoFile_ch.view()
+
     input_ch = Channel.fromPath(params.input)
 
     VCFANNO(input_ch)
