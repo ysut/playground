@@ -3,20 +3,7 @@
 nextflow.enable.dsl=2
 
 params.input = ''
-
-process GADO {
-    input:
-    path phenotypes
-
-    output:
-    path 'GADO_results/gado.txt'
-
-    script:
-    """
-    ${WORKFLOW_WES}/scripts/run_gado.sh $phenotypes ./GADO_results/gado.txt
-    """
-}
-
+params.phenotypes = ''
 
 process VCFANNO {
     input:
@@ -90,6 +77,19 @@ process CONCATENATESORT {
     """
 }
 
+process MAVERICK {
+    input:
+    path vcf
+
+    output:
+    path '*.MaverickResults.txt'
+
+    script:
+    """
+    runMaverick.sh $vcf
+    """
+}
+
 
 process ANNOVAR {
     input:
@@ -138,12 +138,38 @@ process HGMDANNOTATOR {
     """
 }
 
+process GADO {
+    input:
+    path phenotypes
+
+    output:
+    path 'GADO_results/*.txt'
+
+    script:
+    """
+    ${WORKFLOW_WES}/scripts/run_gado.sh $phenotypes ./GADO_results/
+    mkdir ./GADO_results/log
+    mv ./GADO_results/hpoProcessed.txt* ./GADO_results/log/
+    mv ./GADO_results/samples.txt ./GADO_results/log/
+    pwd && ls -l ./GADO_results/
+    cp ./GADO_results/*.txt ${workflow.launchDir}/
+    """
+}
 
 workflow {
-    phenotypes_ch = Channel.fromPath(./phenotypes.txt)
-    GADO(phenotypes_ch)
-        .set{ gadoFile_ch }
-    gadoFile_ch.view()
+    // If params.input is provided, run the rest of the workflow
+    // Otherwise, return an error message
+    if (!params.input) {
+        error 'Please provide a VCF file to annotate.'
+    }
+
+    // If prams.phenotypes is provided, run GADO, otherwise skip
+    if (params.phenotypes) {
+        phenotypes_ch = Channel.fromPath(params.phenotypes)
+        GADO(phenotypes_ch)
+            .set{ gadoFile_ch }
+
+    }
 
     input_ch = Channel.fromPath(params.input)
 
@@ -164,6 +190,9 @@ workflow {
 
     CONCATENATESORT(collectedSpliceaiFiles_ch)
         .set{ concatFile_ch }
+
+    MAVERICK(concatFile_ch)
+        .set{ maverickFiles_ch }
 
     ANNOVAR(concatFile_ch)
         .set{ annovarFiles_ch }
