@@ -36,6 +36,9 @@ process SPLIT {
 }
 
 process SPLICEAI {
+    container 'betelgeuse:5000/library/utsu:spliceai'
+    containerOptions '-v /betelgeuse07/analysis/utsu/resources:/resources'
+    
     input:
     path vcf
 
@@ -44,6 +47,8 @@ process SPLICEAI {
 
     script:
     """
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate spliceai
     spliceai \\
       -I $vcf \\
       -O ${vcf.baseName}.splai.vcf \\
@@ -78,15 +83,22 @@ process CONCATENATESORT {
 }
 
 process MAVERICK {
+    container 'betelgeuse:5000/library/utsu:maverick'
+    containerOptions '-v /betelgeuse04/analysis/utsu/resources/Maverick:/Maverick_root'
+    
     input:
     path vcf
 
     output:
-    path '*.MaverickResults.txt'
+    // path '*.MaverickResults.txt'
+    stdout
 
     script:
     """
-    runMaverick.sh $vcf
+    #!/bin/bash
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate maverick
+    bash Maverick/InferenceScripts/runMaverick.sh
     """
 }
 
@@ -151,7 +163,6 @@ process GADO {
     mkdir ./GADO_results/log
     mv ./GADO_results/hpoProcessed.txt* ./GADO_results/log/
     mv ./GADO_results/samples.txt ./GADO_results/log/
-    pwd && ls -l ./GADO_results/
     cp ./GADO_results/*.txt ${workflow.launchDir}/
     """
 }
@@ -168,7 +179,6 @@ workflow {
         phenotypes_ch = Channel.fromPath(params.phenotypes)
         GADO(phenotypes_ch)
             .set{ gadoFile_ch }
-
     }
 
     input_ch = Channel.fromPath(params.input)
@@ -176,33 +186,34 @@ workflow {
     VCFANNO(input_ch)
         .set{ vcfannoFile_ch }
 
-    SPLIT(vcfannoFile_ch)
-        .flatMap{ file -> file }
-        .set{ splitFiles_ch }
-
-    SPLICEAI(splitFiles_ch)
-        .collect()
-        .set{ spliceaiFiles_ch }
-
-    spliceaiFiles_ch
-        .collect()
-        .set{ collectedSpliceaiFiles_ch }
-
-    CONCATENATESORT(collectedSpliceaiFiles_ch)
-        .set{ concatFile_ch }
-
-    MAVERICK(concatFile_ch)
+    MAVERICK(vcfannoFile_ch)
         .set{ maverickFiles_ch }
+    maverickFiles_ch.view()
 
-    ANNOVAR(concatFile_ch)
-        .set{ annovarFiles_ch }
+    // SPLIT(vcfannoFile_ch)
+    //     .flatMap{ file -> file }
+    //     .set{ splitFiles_ch }
 
-    FORMATANNOVAR(annovarFiles_ch)
-        .set{ renamedFile_ch }
+    // SPLICEAI(splitFiles_ch)
+    //     .collect()
+    //     .set{ spliceaiFiles_ch }
 
-    HGMDANNOTATOR(renamedFile_ch)
-        .set{ hgmdAnnotatedFile_ch }
+    // spliceaiFiles_ch
+    //     .collect()
+    //     .set{ collectedSpliceaiFiles_ch }
 
-    hgmdAnnotatedFile_ch.view()    
+    // CONCATENATESORT(collectedSpliceaiFiles_ch)
+    //     .set{ concatFile_ch }
+
+    // ANNOVAR(concatFile_ch)
+    //     .set{ annovarFiles_ch }
+
+    // FORMATANNOVAR(annovarFiles_ch)
+    //     .set{ renamedFile_ch }
+
+    // HGMDANNOTATOR(renamedFile_ch)
+    //     .set{ hgmdAnnotatedFile_ch }
+
+    // hgmdAnnotatedFile_ch.view()    
 
 }
