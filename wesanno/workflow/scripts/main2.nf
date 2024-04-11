@@ -82,25 +82,29 @@ process CONCATENATESORT {
     """
 }
 
-// process MAVERICK {
-//     container 'betelgeuse:5000/library/utsu:maverick'
-//     containerOptions '-v /betelgeuse04/analysis/utsu/resources/Maverick:/Maverick_root'
+process MAVERICK {
+    container 'betelgeuse:5000/library/utsu:spliceai'
+    containerOptions '-v /betelgeuse04/analysis/utsu/resources/Maverick:/Maverick_root'
+
+    // env {
+    //     PATH = "/Maverick_root/Maverick/InferenceScripts:${PATH}"
+    // }
     
-//     input:
-//     path vcf
+    input:
+    path vcf
 
-//     output:
-//     // path '*.MaverickResults.txt'
-//     stdout
+    output:
+    // path '*.MaverickResults.txt'
+    stdout
 
-//     script:
-//     """
-//     #!/bin/bash
-//     source /opt/conda/etc/profile.d/conda.sh
-//     conda activate maverick
-//     bash Maverick/InferenceScripts/runMaverick.sh
-//     """
-// }
+    script:
+    """
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate spliceai
+    ls /Maverick_root
+    #/bin/bash /Maverick_root/Maverick/InferenceScripts/runMaverick.sh $vcf
+    """
+}
 
 
 process ANNOVAR {
@@ -183,37 +187,37 @@ workflow {
 
     input_ch = Channel.fromPath(params.input)
 
-    VCFANNO(input_ch)
-        .set{ vcfannoFile_ch }
+    // VCFANNO(input_ch)
+    //     .set{ vcfannoFile_ch }
 
-    // MAVERICK(vcfannoFile_ch)
-    //     .set{ maverickFiles_ch }
-    // maverickFiles_ch.view()
+    MAVERICK(input_ch)
+        .set{ maverickFiles_ch }
+    maverickFiles_ch.view()
 
-    SPLIT(vcfannoFile_ch)
-        .flatMap{ file -> file }
-        .set{ splitFiles_ch }
+    // SPLIT(vcfannoFile_ch)
+    //     .flatMap{ file -> file }
+    //     .set{ splitFiles_ch }
 
-    SPLICEAI(splitFiles_ch)
-        .collect()
-        .set{ spliceaiFiles_ch }
+    // SPLICEAI(splitFiles_ch)
+    //     .collect()
+    //     .set{ spliceaiFiles_ch }
 
-    spliceaiFiles_ch
-        .collect()
-        .set{ collectedSpliceaiFiles_ch }
+    // spliceaiFiles_ch
+    //     .collect()
+    //     .set{ collectedSpliceaiFiles_ch }
 
-    CONCATENATESORT(collectedSpliceaiFiles_ch)
-        .set{ concatFile_ch }
+    // CONCATENATESORT(collectedSpliceaiFiles_ch)
+    //     .set{ concatFile_ch }
 
-    ANNOVAR(concatFile_ch)
-        .set{ annovarFiles_ch }
+    // ANNOVAR(concatFile_ch)
+    //     .set{ annovarFiles_ch }
 
-    FORMATANNOVAR(annovarFiles_ch)
-        .set{ renamedFile_ch }
+    // FORMATANNOVAR(annovarFiles_ch)
+    //     .set{ renamedFile_ch }
 
-    HGMDANNOTATOR(renamedFile_ch)
-        .set{ hgmdAnnotatedFile_ch }
+    // HGMDANNOTATOR(renamedFile_ch)
+    //     .set{ hgmdAnnotatedFile_ch }
 
-    hgmdAnnotatedFile_ch.view()    
+    // hgmdAnnotatedFile_ch.view()    
 
 }
