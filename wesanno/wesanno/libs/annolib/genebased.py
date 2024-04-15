@@ -115,7 +115,5 @@ class GeneBasedAnno:
         else:
             return '.'
     
-    
-
     def match_g2p_phenotypes(self, df):
         pass

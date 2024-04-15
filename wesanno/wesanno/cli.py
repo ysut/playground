@@ -18,8 +18,8 @@ from .libs.args import parser_setting
 from .libs.utils import load_config, dfs_to_excel, OutputSettings
 from .libs.preprocess import PreProcessExomeSummary
 from .libs.modesamples import ModeSamples
-from .libs.annolibs.anno import Anno
-from .libs.annolibs.genebased import GeneBasedAnno
+from .libs.annolib.anno import Anno
+from .libs.annolib.genebased import GeneBasedAnno
 from .libs.filter.maffilter import MafFilter
 from .libs.filter.typefilter import TypeFilter
 from .libs.filter.gtfilter import GtFilter
