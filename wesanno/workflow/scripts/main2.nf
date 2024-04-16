@@ -83,7 +83,7 @@ process CONCATENATESORT {
 }
 
 process MAVERICK {
-    container 'betelgeuse:5000/library/utsu:spliceai'
+    container 'betelgeuse:5000/library/utsu:maverick'
     containerOptions '-v /betelgeuse04/analysis/utsu/resources/Maverick:/Maverick_root'
 
     // env {
