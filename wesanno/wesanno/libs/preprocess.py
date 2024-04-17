@@ -12,7 +12,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp' 
-pandarallel.initialize(progress_bar=True, verbose=2)
+pandarallel.initialize(progress_bar=False, verbose=1)
 
 class PreProcessExomeSummary:
     def __init__(self, df: pd.DataFrame, args: dict, mode_samples_info):
@@ -27,13 +27,33 @@ class PreProcessExomeSummary:
         df['HGVD_AF'] = df['HGVD_AF'].replace('.', np.nan)
         df['HGVD_AF'] = df['HGVD_AF'].astype(float)
         return df
+
+    def __extract_tommo_maf(self, df: pd.DataFrame):
+        df['ToMMo54K'] = df['INFO'].str.extract('(?<=ToMMo54KJPN_lifted37_AF=)(\d\.?\d*)')
+        df['ToMMo54K_PAR2'] = df['INFO'].str.extract('(?<=ToMMo54KJPN_lifted37_AF_PAR2=)(\d\.?\d*)')
+        df['ToMMo54K_PAR3'] = df['INFO'].str.extract('(?<=ToMMo54KJPN_lifted37_AF_PAR3=)(\d\.?\d*)')
+        df['ToMMo8.3K_MT_MALE'] = df['INFO'].str.extract('(?<=ToMMo8.3KJPN_AF_MALE_MT=)(\d\.?\d*)')
+        df['ToMMo8.3K_MT_FEMALE'] = df['INFO'].str.extract('(?<=ToMMo8.3KJPN_AF_FEMALE_MT=)(\d\.?\d*)')
+        return df
     
-    def __extract_tommo_maf(
-            self, df: pd.DataFrame, 
-            col='snp20171005_tommo3.5k_passed') -> pd.DataFrame:
-        df['ToMMo3.5KJPN_AF'] = df[col].str.extract('(\.|[0-1]\.\d{0,})')
-        df['ToMMo3.5KJPN_AF'] = df['ToMMo3.5KJPN_AF'].replace('.', np.nan)
-        df['ToMMo3.5KJPN_AF'] = df['ToMMo3.5KJPN_AF'].astype(float)
+    # def __extract_tommo_maf(
+    #         self, df: pd.DataFrame, 
+    #         col='snp20171005_tommo3.5k_passed') -> pd.DataFrame:
+    #     df['ToMMo3.5KJPN_AF'] = df[col].str.extract('(\.|[0-1]\.\d{0,})')
+    #     df['ToMMo3.5KJPN_AF'] = df['ToMMo3.5KJPN_AF'].replace('.', np.nan)
+    #     df['ToMMo3.5KJPN_AF'] = df['ToMMo3.5KJPN_AF'].astype(float)
+    #     return df
+
+    def __extract_spliceai(self, df: pd.DataFrame):
+        df['SpliceAI_raw'] = df['INFO'].str.extract('(?<=SpliceAI=)([^;]+)')
+        df['SpliceAI_tmp'] = df['SpliceAI_raw'].str.split(',').str[0]
+        df = pd.concat([df, df['SpliceAI_tmp'].str.split('|', expand=True)], axis=1)
+        df.drop(columns=['SpliceAI_tmp', 0], inplace=True)
+        df.rename(columns={1: 'SpliceAI_Tx', 
+                        2: 'DS_AG', 3: 'DS_AL', 4: 'DS_DG', 5: 'DS_DL', 
+                        6: 'DP_AG', 7: 'DP_AL', 8: 'DP_DG', 9: 'DP_DL'}, 
+                        inplace=True)
+        df['SpliceAI_Max'] = df[['DS_AG', 'DS_AL', 'DS_DG', 'DS_DL']].max(axis=1)
         return df
 
     def __extract_abraom_maf(
@@ -54,14 +74,14 @@ class PreProcessExomeSummary:
         
     def __extract_inhouse_maf_m(self, row) -> str:
         if ((row['CHROM'] == 'X') | (row['CHROM'] == 'Y')):
-            mf = re.search(r'(?<=Mutation=.:281,294:)(.+)', row['INFO']).group()
+            mf = re.search(r'(?<=Mutation=.:281,294:)([^;]+)', row['INFO']).group()
             return mf.split(',')[0]
         else:
             return '.'
 
     def __extract_inhouse_maf_f(self, row) -> str:
         if ((row['CHROM'] == 'X') | (row['CHROM'] == 'Y')):
-            mf = re.search(r'(?<=Mutation=.:281,294:)(.+)', row['INFO']).group()
+            mf = re.search(r'(?<=Mutation=.:281,294:)([^;]+)', row['INFO']).group()
             return mf.split(',')[1]
         else:
             return '.'
@@ -99,27 +119,58 @@ class PreProcessExomeSummary:
         
         return df
 
+    def __rename_maf_cols(self, df: pd.DataFrame) -> pd.DataFrame:
+        
+        gnomad_cols = [
+            'AF', 'AF_popmax', 'AF_male', 'AF_female', 'AF_raw', 'AF_afr', 
+            'AF_sas', 'AF_amr', 'AF_eas', 'AF_nfe', 'AF_fin','AF_asj', 'AF_oth',
+            'non_topmed_AF_popmax', 'non_neuro_AF_popmax', 
+            'non_cancer_AF_popmax', 'controls_AF_popmax']
+        
+        for col in df.columns:
+            if col in gnomad_cols:
+                new_col = 'gnomADv4_exome_' + col
+                df = df.rename(columns={col: new_col})
+            elif col.lstrip('2_') in gnomad_cols:
+                new_col = 'gnomADv4_genome_' + col.lstrip('2_')
+                df = df.rename(columns={col: new_col})
+            else:
+                pass
+        
+        return df
 
     def __replace_dot_to_nan(self, df: pd.DataFrame) -> pd.DataFrame:
-        df['ExAC_ALL'].replace('.', np.nan, inplace=True)
-        df['ExAC_EAS'].replace('.', np.nan, inplace=True)
-        df['ExAC_NFE'].replace('.', np.nan, inplace=True)
-        df['ExAC_SAS'].replace('.', np.nan, inplace=True)
-        df['ExAC_AMR'].replace('.', np.nan, inplace=True)
-        df['ExAC_AFR'].replace('.', np.nan, inplace=True)
-        df['ExAC_FIN'].replace('.', np.nan, inplace=True)
-        df['ExAC_OTH'].replace('.', np.nan, inplace=True)
-        df['esp6500siv2_all'].replace('.', np.nan, inplace=True)
-        df['InHouse575_AF'].replace('.', np.nan, inplace=True)
-        df['InHouseMale_AF'].replace('.', np.nan, inplace=True)
-        df['InHouseFemale_AF'].replace('.', np.nan, inplace=True)
-        df = df.astype(
-            {'ExAC_ALL': float, 'ExAC_EAS': float, 'ExAC_NFE': float, 
-             'ExAC_SAS': float, 'ExAC_AMR': float, 'ExAC_AFR': float, 
-             'ExAC_FIN': float, 'ExAC_OTH': float, 'esp6500siv2_all': float,
-             'InHouse575_AF': float, 'InHouseMale_AF': float, 
-             'InHouseFemale_AF': float}
-             )
+        maf_cols = [
+            'gnomADv4_exome_AF', 'gnomADv4_exome_AF_popmax', 
+            'gnomADv4_exome_AF_male', 'gnomADv4_exome_AF_female', 
+            'gnomADv4_exome_AF_raw', 'gnomADv4_exome_AF_afr', 
+            'gnomADv4_exome_AF_sas', 'gnomADv4_exome_AF_amr', 
+            'gnomADv4_exome_AF_eas', 'gnomADv4_exome_AF_nfe', 
+            'gnomADv4_exome_AF_fin', 'gnomADv4_exome_AF_asj', 
+            'gnomADv4_exome_AF_oth', 
+            'gnomADv4_exome_non_topmed_AF_popmax',
+            'gnomADv4_exome_non_neuro_AF_popmax', 
+            'gnomADv4_exome_non_cancer_AF_popmax',
+            'gnomADv4_exome_controls_AF_popmax', 
+            'gnomADv4_genome_AF', 'gnomADv4_genome_AF_popmax', 
+            'gnomADv4_genome_AF_male', 'gnomADv4_genome_AF_female', 
+            'gnomADv4_genome_AF_raw', 'gnomADv4_genome_AF_afr', 
+            'gnomADv4_genome_AF_amr', 'gnomADv4_genome_AF_eas', 
+            'gnomADv4_genome_AF_nfe', 'gnomADv4_genome_AF_fin', 
+            'gnomADv4_genome_AF_asj', 'gnomADv4_genome_AF_oth', 
+            'gnomADv4_genome_non_topmed_AF_popmax',
+            'gnomADv4_genome_non_neuro_AF_popmax', 
+            'gnomADv4_genome_controls_AF_popmax', 
+            'PopFreqMax', 'ExAC_ALL', 'ESP6500siv2_ALL', 'CG46', 
+            'GME_AF', 'ABraOM_AF', 
+            'InHouse575_AF', 'InHouseMale_AF', 'InHouseFemale_AF',
+            'HGVD_AF', 'ToMMo54K', 'ToMMo54K_PAR2', 'ToMMo54K_PAR3',
+            'ToMMo8.3K_MT_MALE', 'ToMMo8.3K_MT_FEMALE']
+
+        for col in maf_cols:
+            df[col] = df[col].replace('.', np.nan)
+            df[col] = df[col].fillna(np.nan)
+            df[col] = df[col].astype(float)
         
         return df
 
@@ -138,7 +189,7 @@ class PreProcessExomeSummary:
     
         return df
     
-    def __process_dataframe_optimized(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __split_alt_col(self, df: pd.DataFrame) -> pd.DataFrame:
         # Save the original column names
         column_names: list = list(df.columns) + ['SplitALT']
 
@@ -162,19 +213,27 @@ class PreProcessExomeSummary:
         return result_df
 
     def __drop_unused_cols(self, df: pd.DataFrame) -> pd.DataFrame:
-        droplist = [
+        unused_cols = [
             'exac03_pLI_Z:pLI:pRec', 'dbscSNV_RF_SCORE', 'dpsi_max_tissue', 
-            'dpsi_zscore', 'Otherinfo1', 'OtherInfo2', 'OtherInfo3',
-            'HGVD', 'snp20171005_tommo3.5k_passed', 'dbscSNV_ADA_SCORE',
-            'gnomAD_v2_1_1_June2020_z_pLI:LOUEF:pRec', 'GT'
+            'dpsi_zscore', 'Otherinfo1', 'Otherinfo2', 'Otherinfo3', 
+            'OtherInfo2', 'OtherInfo3', 'HGVD', 
+            'snp20171005_tommo3.5k_passed', 'dbscSNV_ADA_SCORE',
+            'gnomAD_v2_1_1_June2020_z_pLI:LOUEF:pRec', 'GT',
+            'ExAC_AFR', 'ExAC_AMR', 'ExAC_EAS', 'ExAC_FIN', 'ExAC_NFE',
+            'ExAC_OTH', 'ExAC_SAS', 'ESP6500siv2_AA', 'ESP6500siv2_EA', 
+            '1000G_AFR', '1000G_AMR', '1000G_EAS', '1000G_EUR', '1000G_SAS',
+            'GME_NWA', 'GME_NEA', 'GME_AP', 'GME_Israel', 'GME_SD', 'GME_TP',
+            'GME_CA', 'gnomADv4_exomeAF_raw', 'gnomADv4_genome_AF_raw', 
+            'Polyphen2_HDIV_score', 'Polyphen2_HDIV_rankscore', 
+            'Polyphen2_HDIV_pred', 
             ]
-        
-        for dropcolumn in droplist:
-            if dropcolumn in df.columns:
+        droplist = []
+
+        for col in unused_cols:
+            if col not in df.columns:
                 pass
             else:
-                logger.info(f"{dropcolumn} is not in the dataframe.")
-                droplist.remove(dropcolumn)
+                droplist.append(col)
 
         return df.drop(droplist, axis=1)
     
@@ -189,6 +248,7 @@ class PreProcessExomeSummary:
             return None
 
 
+    ### Main method ###
     def all_pre_processing(self):
         # if ((self.args['assembly'] == 'hg19') 
         #     | (self.args['assembly'] == 'GRCh37')):
@@ -202,19 +262,23 @@ class PreProcessExomeSummary:
         #                 f"(Assembly is {self.args['assembly']}).")
         #     pass
 
+        # Drop ALL dot rows columns
+        logger.info('Drop ALL dot rows columns')
+        self.df = self.df.loc[:,~(self.df == '.').all(axis=0)]
+
         # Extract InHouse MAF
         logger.info('Extract InHouse MAF')
-        self.df['InHouse575_AF'] = self.df.parallel_apply(
+        self.df.loc[:,'InHouse575_AF'] = self.df.parallel_apply(
             self.__extract_inhouse_maf_auto, axis=1)
-        self.df['InHouseMale_AF'] = self.df.parallel_apply(
+        self.df.loc[:,'InHouseMale_AF'] = self.df.parallel_apply(
             self.__extract_inhouse_maf_m, axis=1)
-        self.df['InHouseFemale_AF'] = self.df.parallel_apply(
+        self.df.loc[:,'InHouseFemale_AF'] = self.df.parallel_apply(
             self.__extract_inhouse_maf_f, axis=1)
 
         # Extract MAF from each database cols
         logger.info('Extract MAF from each database cols')
-        self.df = self.__extract_hgvd_maf(self.df)
-        self.df = self.__extract_tommo_maf(self.df)
+        self.df = self.__extract_hgvd_maf(self.df).copy()
+        self.df = self.__extract_tommo_maf(self.df).copy()
         self.df = self.__extract_abraom_maf(self.df)
 
         # Extract genotypeing info
@@ -225,16 +289,24 @@ class PreProcessExomeSummary:
         logger.info('Split QC info')
         self.df = self._split_qc_info(self.df)
 
+        # Rename gnomAD MAF cols
+        logger.info('Rename gnomAD MAF cols')
+        self.df = self.__rename_maf_cols(self.df)
+
         # Replace '.' to np.nan
         logger.info('Replace "." to np.nan')
         self.df = self.__replace_dot_to_nan(self.df)
 
         # Split ALT column
         logger.info('Split ALT column')
-        self.df = self.__process_dataframe_optimized(self.df)
+        self.df = self.__split_alt_col(self.df)
         self.df = self.df.drop_duplicates(
             subset=['CHROM', 'POS', 'ALT', 'SplitALT']
             )
+        
+        # Extract SpliceAI
+        logger.info('Extract SpliceAI')
+        self.df = self.__extract_spliceai(self.df)
 
         # Drop unused columns
         logger.info('Drop unused columns')

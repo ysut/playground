@@ -32,18 +32,16 @@ class MafFilter:
 
     def __extract_01_percent(self, df: pd.DataFrame) -> pd.DataFrame:
         df.loc[
-            ((df['ExAC_ALL'] < 0.001) | (df['ExAC_ALL'].isnull()))
-            & ((df['ExAC_EAS'] < 0.001) | (df['ExAC_EAS'].isnull()))
-            & ((df['ExAC_FIN'] < 0.001) | (df['ExAC_FIN'].isnull()))
-            & ((df['ExAC_NFE'] < 0.001) | (df['ExAC_NFE'].isnull()))
-            & ((df['ExAC_OTH'] < 0.001) | (df['ExAC_OTH'].isnull()))
-            & ((df['ExAC_SAS'] < 0.001) | (df['ExAC_SAS'].isnull()))
-            & ((df['ExAC_AFR'] < 0.001) | (df['ExAC_AFR'].isnull()))
-            & ((df['ExAC_AMR'] < 0.001) | (df['ExAC_AMR'].isnull()))
+            ((df['PopFreqMax'] < 0.001) | (df['PopFreqMax'].isnull()))
+            & ((df['gnomADv4_exome_AF_popmax'] < 0.001) | (df['gnomADv4_exome_AF_popmax'].isnull()))
+            & ((df['gnomADv4_genome_AF_popmax'] < 0.001) | (df['gnomADv4_genome_AF_popmax'].isnull()))
             & ((df['HGVD_AF'] < 0.001) | (df['HGVD_AF'].isnull()))
             & ((df['ABraOM_AF'] < 0.001) | (df['ABraOM_AF'].isnull()))
-            & ((df['esp6500siv2_all'] < 0.001) | (df['esp6500siv2_all'].isnull()))
-            & ((df['ToMMo3.5KJPN_AF'] < 0.001) | (df['ToMMo3.5KJPN_AF'].isnull())),
+            & ((df['ToMMo54K'] < 0.001) | (df['ToMMo54K'].isnull()))
+            & ((df['ToMMo54K_PAR2'] < 0.001) | (df['ToMMo54K_PAR2'].isnull()))
+            & ((df['ToMMo54K_PAR3'] < 0.001) | (df['ToMMo54K_PAR3'].isnull()))
+            & ((df['ToMMo8.3K_MT_MALE'] < 0.001) | (df['ToMMo8.3K_MT_MALE'].isnull()))
+            & ((df['ToMMo8.3K_MT_FEMALE'] < 0.001) | (df['ToMMo8.3K_MT_FEMALE'].isnull())),      
             'MAF_0.1%_FILTER'
             ] = 'PASS'
 
@@ -52,18 +50,16 @@ class MafFilter:
 
     def __extract_1_percent(self, df: pd.DataFrame) -> pd.DataFrame:
         df.loc[
-            ((df['ExAC_ALL'] < 0.01) | (df['ExAC_ALL'].isnull()))
-            & ((df['ExAC_EAS'] < 0.01) | (df['ExAC_EAS'].isnull()))
-            & ((df['ExAC_FIN'] < 0.01) | (df['ExAC_FIN'].isnull()))
-            & ((df['ExAC_NFE'] < 0.01) | (df['ExAC_NFE'].isnull()))
-            & ((df['ExAC_OTH'] < 0.01) | (df['ExAC_OTH'].isnull()))
-            & ((df['ExAC_SAS'] < 0.01) | (df['ExAC_SAS'].isnull()))
-            & ((df['ExAC_AFR'] < 0.01) | (df['ExAC_AFR'].isnull()))
-            & ((df['ExAC_AMR'] < 0.01) | (df['ExAC_AMR'].isnull()))
+            ((df['PopFreqMax'] < 0.01) | (df['PopFreqMax'].isnull()))
+            & ((df['gnomADv4_exome_AF_popmax'] < 0.01) | (df['gnomADv4_exome_AF_popmax'].isnull()))
+            & ((df['gnomADv4_genome_AF_popmax'] < 0.01) | (df['gnomADv4_genome_AF_popmax'].isnull()))
             & ((df['HGVD_AF'] < 0.01) | (df['HGVD_AF'].isnull()))
             & ((df['ABraOM_AF'] < 0.01) | (df['ABraOM_AF'].isnull()))
-            & ((df['esp6500siv2_all'] < 0.01) | (df['esp6500siv2_all'].isnull()))
-            & ((df['ToMMo3.5KJPN_AF'] < 0.01) | (df['ToMMo3.5KJPN_AF'].isnull())),
+            & ((df['ToMMo54K'] < 0.01) | (df['ToMMo54K'].isnull()))
+            & ((df['ToMMo54K_PAR2'] < 0.01) | (df['ToMMo54K_PAR2'].isnull()))
+            & ((df['ToMMo54K_PAR3'] < 0.01) | (df['ToMMo54K_PAR3'].isnull()))
+            & ((df['ToMMo8.3K_MT_MALE'] < 0.01) | (df['ToMMo8.3K_MT_MALE'].isnull()))
+            & ((df['ToMMo8.3K_MT_FEMALE'] < 0.01) | (df['ToMMo8.3K_MT_FEMALE'].isnull())),  
             'MAF_1%_FILTER'
             ] = 'PASS'
 

@@ -32,7 +32,9 @@ def liftover_process(row) -> int:
     # Chain file path in the Docker container is hard-coded
     chain_file = '/app/resources/hg19ToHg38.over.chain.gz'
     converter = ChainFile(chain_file, 'hg19', 'hg38')
-    try:   
+    if row['CHROM'] == 'MT' or row['CHROM'] == 'chrMT':
+        return np.nan
+    try:
         result = converter[row['CHROM']][row['POS']][0][1]
         return result
     except IndexError:
