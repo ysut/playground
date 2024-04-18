@@ -80,8 +80,8 @@ class MafFilter:
 
 
     def all_filtering(self):
-        self.df = self.__extract_zero_inhouse(self.df)
-        self.df = self.__extract_1_percent_inhouse(self.df)
+        # self.df = self.__extract_zero_inhouse(self.df)
+        # self.df = self.__extract_1_percent_inhouse(self.df)
         self.df = self.__extract_01_percent(self.df)
         self.df = self.__extract_1_percent(self.df)
         self.df = self.__exclude_nonflagged_snps(self.df)

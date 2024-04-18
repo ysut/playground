@@ -47,7 +47,7 @@ class HardFilter:
                 (df['MOI_FILTER'] == 'PASS') 
                 & (df['non_zero_DM'] == 'PASS')
                 & (df['GQ_FILTER'] == 'PASS')
-                & (df['DP_FILTER'] == 'PASS')
+                # & (df['DP_FILTER'] == 'PASS')
                 & (df['FlaggedSNP_FILTER'] == 'PASS'),
                 'HARD_FILTER'] = 'PASS'
                     

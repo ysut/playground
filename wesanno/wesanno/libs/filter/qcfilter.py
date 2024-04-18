@@ -22,6 +22,6 @@ class QcFilter:
         
     def exclude_low_quality(self) -> pd.DataFrame:
         self.df = self.__exclude_low_gq(self.df)
-        self.df = self.__exclude_low_dp(self.df)
+        # self.df = self.__exclude_low_dp(self.df)
 
         return self.df

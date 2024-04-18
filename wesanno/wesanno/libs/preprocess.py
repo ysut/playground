@@ -163,9 +163,9 @@ class PreProcessExomeSummary:
             'gnomADv4_genome_controls_AF_popmax', 
             'PopFreqMax', 'ExAC_ALL', 'ESP6500siv2_ALL', 'CG46', 
             'GME_AF', 'ABraOM_AF', 
-            'InHouse575_AF', 'InHouseMale_AF', 'InHouseFemale_AF',
             'HGVD_AF', 'ToMMo54K', 'ToMMo54K_PAR2', 'ToMMo54K_PAR3',
             'ToMMo8.3K_MT_MALE', 'ToMMo8.3K_MT_FEMALE']
+            # 'InHouse575_AF', 'InHouseMale_AF', 'InHouseFemale_AF',
 
         for col in maf_cols:
             df[col] = df[col].replace('.', np.nan)
@@ -185,7 +185,7 @@ class PreProcessExomeSummary:
 
         df.replace({'DP': {'.': 0}}, inplace=True)
         df.fillna({'DP': 0}, inplace=True)
-        df = df.astype({'DP': 'int32'})
+        # df = df.astype({'DP': 'int32'})
     
         return df
     
@@ -267,13 +267,13 @@ class PreProcessExomeSummary:
         self.df = self.df.loc[:,~(self.df == '.').all(axis=0)]
 
         # Extract InHouse MAF
-        logger.info('Extract InHouse MAF')
-        self.df.loc[:,'InHouse575_AF'] = self.df.parallel_apply(
-            self.__extract_inhouse_maf_auto, axis=1)
-        self.df.loc[:,'InHouseMale_AF'] = self.df.parallel_apply(
-            self.__extract_inhouse_maf_m, axis=1)
-        self.df.loc[:,'InHouseFemale_AF'] = self.df.parallel_apply(
-            self.__extract_inhouse_maf_f, axis=1)
+        # logger.info('Extract InHouse MAF')
+        # self.df.loc[:,'InHouse575_AF'] = self.df.parallel_apply(
+        #     self.__extract_inhouse_maf_auto, axis=1)
+        # self.df.loc[:,'InHouseMale_AF'] = self.df.parallel_apply(
+        #     self.__extract_inhouse_maf_m, axis=1)
+        # self.df.loc[:,'InHouseFemale_AF'] = self.df.parallel_apply(
+        #     self.__extract_inhouse_maf_f, axis=1)
 
         # Extract MAF from each database cols
         logger.info('Extract MAF from each database cols')

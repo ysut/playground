@@ -60,10 +60,10 @@ def counter(dfs: ModelDataFrame, output_excel: str) -> ModelDataFrame:
         }
 
     # InHouse FILTER
-    dfs.AD = dfs.AD[dfs.AD['InHouse_absent_FILTER'] == 'PASS']
-    dfs.Hm = dfs.Hm[dfs.Hm['InHouse_1%_FILTER'] == 'PASS']
-    dfs.CH = dfs.CH[dfs.CH['InHouse_1%_FILTER'] == 'PASS']
-    dfs.XL = dfs.XL[dfs.XL['InHouse_1%_FILTER'] == 'PASS']
+    # dfs.AD = dfs.AD[dfs.AD['InHouse_absent_FILTER'] == 'PASS']
+    # dfs.Hm = dfs.Hm[dfs.Hm['InHouse_1%_FILTER'] == 'PASS']
+    # dfs.CH = dfs.CH[dfs.CH['InHouse_1%_FILTER'] == 'PASS']
+    # dfs.XL = dfs.XL[dfs.XL['InHouse_1%_FILTER'] == 'PASS']
     post_inhouse: dict = {
         'AD': len(dfs.AD), 
         'Homo': len(dfs.Hm), 
