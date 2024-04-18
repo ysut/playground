@@ -35,7 +35,7 @@ class ErrorCheck:
                          f'{result}')
             return True
         else:
-            logger.info('All specified columns are not found.')
+            logger.info('OK! All specified columns are not found.')
             return False
 
     def has_required_columns(self) -> bool:
@@ -53,7 +53,7 @@ class ErrorCheck:
                          f'{result}')
             return False
         else:
-            logger.info('All required columns are found.')
+            logger.info('OK! All required columns are found.')
             return True
             
     # def __has_liftover_columns(self) -> bool:
@@ -74,7 +74,7 @@ class ErrorCheck:
         """
         total = self.__count_links()
         if total <= 65530:
-            logger.info(f"Total number of hyperlinks are {total}.")
+            logger.info(f"Total number of hyperlinks are {total} (≤ 65530).")
             return True
         else:
             logger.error("The number of total links exceeds the limit (65530): "
@@ -85,3 +85,10 @@ class ErrorCheck:
             return False
 
     # Check if the cell value of input excel file is datetime data type
+    def exists_datetime(self) -> bool:
+        for sheet in self.anno_sheets:
+            if self.dfs.sheets[sheet].dtypes.any() == 'datetime64[ns]':
+                logger.error(f"Sheet '{sheet}' contains datetime data type.")
+                return False
+        logger.info("OK! All gene symbol columns do not contain datetime data type.")
+        return True

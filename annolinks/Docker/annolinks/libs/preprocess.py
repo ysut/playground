@@ -9,7 +9,7 @@ from logging import getLogger
 from hyperlink import ExcelSheetsDF
 
 pandarallel.initialize(
-    progress_bar=True, verbose=2, use_memory_fs=False,
+    progress_bar=True, verbose=0, use_memory_fs=False,
     nb_workers=int(os.cpu_count() -1))
 os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp' 
 logger = getLogger(__name__)
@@ -29,7 +29,8 @@ def is_liftover_needed(df: pd.DataFrame, args: dict) -> bool:
             
 
 def liftover_process(row) -> int:
-    # Chain file path in the Docker container is hard-coded
+    # Docker container has the chain file in the specified path.
+    # Chain file path in the Docker container is hard-coded.
     chain_file = '/app/resources/hg19ToHg38.over.chain.gz'
     converter = ChainFile(chain_file, 'hg19', 'hg38')
     if row['CHROM'] == 'MT' or row['CHROM'] == 'chrMT':
