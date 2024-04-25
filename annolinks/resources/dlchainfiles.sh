@@ -2,7 +2,8 @@
 
 set -e
 
-readonly BASE_URI="ftp://hgdownload.soe.ucsc.edu/goldenPath"
+# Define the base URI for the UCSC Golden Path
+readonly BASE_URI="https://hgdownload.cse.ucsc.edu/goldenpath"
 readonly hg19tohg38="hg19ToHg38.over.chain.gz"
 readonly hg38tohg19="hg38ToHg19.over.chain.gz"
 

@@ -1,7 +1,7 @@
 FROM python:3.12.1-slim-bullseye
 
 ENV PYTHONPATH=${PYTHONPATH}:/app
-ARG UCSC_BASE_URL="ftp://hgdownload.soe.ucsc.edu/goldenPath"
+ARG UCSC_BASE_URL="https://hgdownload.cse.ucsc.edu/goldenpath"
 
 WORKDIR /app
 

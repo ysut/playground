@@ -74,11 +74,11 @@ class ErrorCheck:
         """
         total = self.__count_links()
         if total <= 65530:
-            logger.info(f"Total number of hyperlinks are {total} (≤ 65530).")
+            logger.info(f"The total number of hyperlinks is {total} (≤ 65530).")
             return True
         else:
-            logger.error("The number of total links exceeds the limit (65530): "
-                         f"Total number of hyperlinks are {total}."
+            logger.error("The total number of hyperlinks exceeds the limit (65530): "
+                         f"The total number of hyperlinks is {total}. "
                          "Please reduce the input variants or"
                          "consider using the '--skip-sheets' or "
                          "'--skip-sites' options.")

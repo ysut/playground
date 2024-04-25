@@ -273,7 +273,7 @@ def generate_anno_sheets_list(input_sheets: list, skip_sheets: list) -> list:
 
 def df_to_excel(dfs: ExcelSheetsDF, output_xlsx) -> None:
     with pd.ExcelWriter(output_xlsx, engine='openpyxl') as writer:
-        for sheet in tqdm(dfs.sheets):
+        for sheet in dfs.sheets:
             dfs.sheets[sheet].to_excel(writer, sheet_name=sheet, index=False)
 
 
