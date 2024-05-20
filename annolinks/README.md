@@ -22,16 +22,20 @@ $ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
 ## Arguments and options
 | Arguments | Required | Description | Default |
 | ---  | --- | ---- | --- |
-| `--input` / `-I`   | True | Input file path   | None         |
-| `--gene-col` / `-G` | True | Gene Symbols column name | None |
-| `--assembly` / `-A`   | False | Select assembly version | `hg19`        |
-| `--output` / `-O`  | False | Output file path  | /SAME_AS_INPUT/INPUT_FILE_hyperlinked.xlsx|
-| `--windows` | False | Using output Excel on windows | None |
-| `--franklin-page` | False | Choice one from <br>`assessment-tools`,<br>`variant-interpretation`,<br>`publications`,<br>`gene-assessment`,<br>`conditions`,<br>`clinical-evidence`,<br>`community`,<br>and `classification-demo-app`| `assessment-tools` |
-| `--spliceai-raw` | False | Switch between mask score and raw score | False (masked score)|
-| `--spliceai-dist` | False | SpliceAI max distance | `10000` |
-| `--skip-sheets` | False | Specify sheets not to be annoteted.| None (All sheets will be annotated.)|
-| `--skip-sites` | False | Specify sites not to be inserted hyperlinks.|None (Hyperlinks to all sites will be inserted.)|
+| `--input` / `-I`   | Required | Input file path   | None         |
+| `--gene-col` / `-G` | Required | Gene Symbols column name | None |
+| `--pos19` | No | The column name of variant position on hg19 or GRCh37 | `POS`|
+| `--pos38` | No | The column name of variant position on hg38 or GRCh38 | None|
+| `--assembly` / `-A`   | No | Select assembly version | `hg19`        |
+| `--output` / `-O`  | No | Output file path  | /SAME_AS_INPUT/INPUT_FILE_hyperlinked.xlsx|
+| `--windows` | No | Using output Excel on windows | None |
+| `--franklin-page` | No | Choice one from <br>`assessment-tools`,<br>`variant-interpretation`,<br>`publications`,<br>`gene-assessment`,<br>`conditions`,<br>`clinical-evidence`,<br>`community`,<br>and `classification-demo-app`| `assessment-tools` |
+| `--spliceai-raw` | No | Switch between mask score and raw score | False (masked score)|
+| `--spliceai-dist` | No | SpliceAI max distance | `10000` |
+| `--skip-sheets` | No | Specify sheets not to be annoteted.| None (All sheets will be annotated.)|
+| `--skip-sites` | No | Specify sites not to be inserted hyperlinks.|None (Hyperlinks to all sites will be inserted.)|
+| `--ucsc-width` | No | Number of bases on both sides of the variant in the UCSC Genome Browser | `45` |
+| `--split-alt` | No | If ALT has multiple alternatives, separate each variant into its own row.<br> Please note that this will increase the number of rows. | False |
 | ...|...|...|...|
 
 
