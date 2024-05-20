@@ -10,12 +10,12 @@ POS column is hg38.
 Simple example on Windows PC:
 ```Shell
 $ cd /path/to/your/directory  # Move to the directory where the input files are located.
-$ ls
+$ ls 
 sample.xlsx
 
 $ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
   python -m annolinks \
-  --input /input/sample.xlsx \
+  --input /input/sample.xlsx \    # Please change "sample.xlsx" to your excel file name. The "/input/" path isn't needed to change. 
   --gene-col Gene.refGene \
   --windows
 ```
@@ -44,3 +44,4 @@ $ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
   例えば，`--gene-col Gene.refGene`など．
 - ハイパーリンクを挿入したExcelファイルをWindowsで扱う場合は，`--windows`オプションを付けてください．
   MacOSやLinuxでExcelファイルを見る場合は必要ありません．
+- 遺伝子名の列に「MARCH1」とか「SEPT7」とか日付と間違えるものが含まれているとエラーが出ます．
