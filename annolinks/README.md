@@ -7,40 +7,40 @@ POS column is hg38.
 
 # Usage
 
-Simple example:
+Simple example on Windows PC:
 ```Shell
-$ annolinksver=1.2
 $ cd /path/to/your/directory  # Move to the directory where the input files are located.
 $ ls
-Sample.xlsx
+sample.xlsx
 
-$ docker run --rm -v $(pwd):/input utsuno/annolinks:${annolinksver} \
+$ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
   python -m annolinks \
-  --input /input/Sample.xlsx \
-  --gene-col Gene.refGene
+  --input /input/sample.xlsx \
+  --gene-col Gene.refGene \
+  --windows
 ```
 
 ## Arguments and options
 | Arguments | Required | Description | Default |
 | ---  | --- | ---- | --- |
 | `--input` / `-I`   | True | Input file path   | None         |
-| `--gene-col` / `-G` | True | Gene Symbols column name | None|
+| `--gene-col` / `-G` | True | Gene Symbols column name | None |
 | `--output` / `-O`  | False | Output file path  | /SAME_AS_INPUT/INPUT_FILE_hyperlinked.xlsx|
-| `--windows` | False | Using output Excel on windows | False|
+| `--windows` | False | Using output Excel on windows | None |
 | `--franklin-page` | False | Choice one from <br>`assessment-tools`,<br>`variant-interpretation`,<br>`publications`,<br>`gene-assessment`,<br>`conditions`,<br>`clinical-evidence`,<br>`community`,<br>and `classification-demo-app`| `assessment-tools` |
 | `--spliceai-raw` | False | Switch between mask score and raw score | False (masked score)|
 | `--spliceai-dist` | False | SpliceAI max distance | `10000` |
-| `--skip-sheets` | False | Specify sheets not to be annoteted.<br>| None|
-| `--skip-sites` | False |||
+| `--skip-sheets` | False | Specify sheets not to be annoteted.| None (All sheets will be annotated.)|
+| `--skip-sites` | False | Specify sites not to be inserted hyperlinks.|None (Hyperlinks to all sites will be inserted.)|
 | ...|...|...|...|
 
 
 # Usage in Japanese
-## NOTE
-- Excelファイルに対応しています．
-- 少なくともCHROM，POS，REF，ALT，Gene（列名は任意）の列が必要です．
-- POS列は，hg38であると特別なオプションは必要なくすべての機能を実行できます．
-- SpliceAI lookupのURLをアノテーションする際，アウトプットされたExcelファイルをWindowsで扱う場合は，`--windows`オプションを付けてください．
-
-
-
+## 必要最低限の情報
+- .xlsxファイルに対応しています．
+- Excelファイルには，少なくとも次の5列が必要です．
+  "CHROM"，"POS"，"REF"，"ALT"，と「遺伝子名が書いてある列（列名は任意）」が必要です．そして
+  「遺伝子名が書いてある列」は，`--gene-col1`で必ず指定する必要があります．
+  例えば，`--gene-col Gene.refGene`など．
+- ハイパーリンクを挿入したExcelファイルをWindowsで扱う場合は，`--windows`オプションを付けてください．
+  MacOSやLinuxでExcelファイルを見る場合は必要ありません．
