@@ -2,8 +2,7 @@
 To annotate hyperlinks such as HGMD, UCSC genome browser, DECIPHER for each variants.
 
 # Required input file columns
-CHROM, POS, REF, ALT and Gene.  
-POS column is hg38.
+"CHROM", "POS", "REF", "ALT" and gene symbol column. 
 
 # Usage
 
@@ -25,6 +24,7 @@ $ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
 | ---  | --- | ---- | --- |
 | `--input` / `-I`   | True | Input file path   | None         |
 | `--gene-col` / `-G` | True | Gene Symbols column name | None |
+| `--assembly` / `-A`   | False | Select assembly version | hg19        |
 | `--output` / `-O`  | False | Output file path  | /SAME_AS_INPUT/INPUT_FILE_hyperlinked.xlsx|
 | `--windows` | False | Using output Excel on windows | None |
 | `--franklin-page` | False | Choice one from <br>`assessment-tools`,<br>`variant-interpretation`,<br>`publications`,<br>`gene-assessment`,<br>`conditions`,<br>`clinical-evidence`,<br>`community`,<br>and `classification-demo-app`| `assessment-tools` |
