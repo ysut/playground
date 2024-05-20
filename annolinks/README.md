@@ -1,5 +1,5 @@
 # Description
-To annotate hyperlinks such as HGMD, UCSC genome browser, DECIPHER for each variants.
+To annotate hyperlinks such as HGMD, UCSC genome browser, DECIPHER, and SpliceAI lookup for each variants.
 
 # Required input file columns
 "CHROM", "POS", "REF", "ALT" and gene symbol column. 
