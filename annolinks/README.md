@@ -44,7 +44,7 @@ $ docker run --rm -v $(pwd):/input utsuno/annolinks:latest \
 - .xlsxファイルに対応しています．
 - Excelファイルには，少なくとも次の5列が必要です．
   "CHROM"，"POS"，"REF"，"ALT"，と「遺伝子名が書いてある列（列名は任意）」が必要です．そして
-  「遺伝子名が書いてある列」は，`--gene-col1`で必ず指定する必要があります．
+  「遺伝子名が書いてある列」は，`--gene-col`で必ず指定する必要があります．
   例えば，`--gene-col Gene.refGene`など．
 - ハイパーリンクを挿入したExcelファイルをWindowsで扱う場合は，`--windows`オプションを付けてください．
   MacOSやLinuxでExcelファイルを見る場合は必要ありません．
