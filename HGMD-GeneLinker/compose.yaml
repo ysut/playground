@@ -1,5 +1,3 @@
-version : "3"
-
 networks:
   hgmd_net:
     driver: bridge
