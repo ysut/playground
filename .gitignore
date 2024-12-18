@@ -53,3 +53,10 @@ Cargo.lock
 
 # Chain files
 *.chain.gz
+
+
+# nextflow
+nextflow/.nextflow.log*
+nextflow/work/
+nextflow/.nextflow/
+nextflow/myfiles/*/.nextflow/
