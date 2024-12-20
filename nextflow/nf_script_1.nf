@@ -7,7 +7,6 @@ params.ped_file = ''
 params.output = params.output ?: "${workflow.launchDir}"
 params.out_root = "${params.output}/WES-WF_Results_" + new Date().format('yyyyMMdd-HHmmss')
 
-
 log.info """\
     This is
     a multiline
@@ -21,13 +20,45 @@ process MAKE_OUTPUT_ROOT_DIR {
     """
 }
 
+// process MAKE_FAMILY_SAMPLE_DIR {
+//     input:
+//     tuple val(family), val(sample_id)
+//     // tuple val(families)
+
+//     script:
+//     """
+//     mkdir -p ${params.out_root}/${family}/${sample_id}
+//     """
+// }
+
+
 process MAKE_FAMILY_SAMPLE_DIR {
+    input:
+    tuple val(family), val(individuals)
+
+    output:
+    stdout
+
+    script:
+    def firstIndi = individuals[0]
+    """
+    # familyというフォルダを作成
+    mkdir -p ${params.out_root}/${family}
+    # 確認用のecho
+    echo "Created directory for family: ${family}"
+    echo "Individuals: ${firstIndi}"
+    echo "Individuals: ${firstIndi.individualId}"
+    """
+}
+
+process SHOW_VALUES {
     input:
     tuple val(family), val(sample_id)
 
     script:
     """
-    mkdir -p ${params.out_root}/${family}/${sample_id}
+    echo ${family}
+    echo ${sample_id}
     """
 }
 
@@ -53,12 +84,12 @@ workflow {
     // Output directory
     MAKE_OUTPUT_ROOT_DIR()
 
-    Channel.fromPath("${params.ped_file}")
-        | splitText
-        | map { it.split('\t') }
-        | filter { it.size() >= 6 }
-        | map { columns -> tuple(columns[0], columns[1]) }
-        | MAKE_FAMILY_SAMPLE_DIR
+    // Channel.fromPath("${params.ped_file}")
+    //     | splitText
+    //     | map { it.split('\t') }
+    //     | filter { it.size() >= 6 }
+    //     | map { columns -> tuple(columns[0], columns[1]) }
+    //     | MAKE_FAMILY_SAMPLE_DIR
 
     Channel.fromPath("${params.ped_file}")
         | splitText
@@ -76,7 +107,9 @@ workflow {
                     )
             }
         | groupTuple()  // group by family ID (= colums[0])
-        // | set { families }
+        | set { families }
+    
+    MAKE_FAMILY_SAMPLE_DIR(families)
         | view
 
     // families
