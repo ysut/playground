@@ -60,3 +60,4 @@ nextflow/.nextflow.log*
 nextflow/work/
 nextflow/.nextflow/
 nextflow/myfiles/*/.nextflow/
+nextflow/log/

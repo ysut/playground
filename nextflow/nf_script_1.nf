@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 
-params.aln_dir = ''
+nextflow.enable.dsl = 2
+
+params.fastq_dir = '/Users/utsu/work/Github/playground/nextflow/myfiles/fastq'
 params.ped_file = ''
 
 // params.output = "${launchDir}"
@@ -17,65 +19,67 @@ process MAKE_OUTPUT_ROOT_DIR {
     script:
     """
     mkdir -p ${params.out_root}
+    mkdir -p ${params.out_root}/fastq
     """
 }
-
-// process MAKE_FAMILY_SAMPLE_DIR {
-//     input:
-//     tuple val(family), val(sample_id)
-//     // tuple val(families)
-
-//     script:
-//     """
-//     mkdir -p ${params.out_root}/${family}/${sample_id}
-//     """
-// }
-
 
 process MAKE_FAMILY_SAMPLE_DIR {
     input:
-    tuple val(family), val(individuals)
+    tuple val(familyID), val(individual_id)
 
     output:
-    stdout
-
-    script:
-    def firstIndi = individuals[0]
-    """
-    # familyというフォルダを作成
-    mkdir -p ${params.out_root}/${family}
-    # 確認用のecho
-    echo "Created directory for family: ${family}"
-    echo "Individuals: ${firstIndi}"
-    echo "Individuals: ${firstIndi.individualId}"
-    """
-}
-
-process SHOW_VALUES {
-    input:
-    tuple val(family), val(sample_id)
+    tuple val(familyID), val(individual_id)
 
     script:
     """
-    echo ${family}
-    echo ${sample_id}
+    mkdir -p ${params.out_root}/${familyID}/${individual_id}
+    mkdir -p ${params.out_root}/${familyID}/xams
     """
 }
 
-process aln {
+process FIND_FASTQ {
+    publishDir "${params.out_root}/fastq", mode: 'symlink'
+
     input:
-    tuple val(sample_id), file(fastq_ch1), file(fastq_ch2)
+    tuple val(familyId), val(individualId)
 
     output:
-    stdout
+    tuple val(familyId), val(individualId), path("*_R1*.fastq.gz"), path("*_R2*.fastq.gz")
+
+    script:
+    """
+    echo "Searching fastq for Family: ${familyId}, Individual: ${individualId}"
+
+    set -e
+
+    find "${params.fastq_dir}" -type f \\
+      -name "*${individualId}*_R1*.fastq.gz" -exec ln -s {} . \\; || true
+    find "${params.fastq_dir}" -type f \\
+      -name "*${individualId}*_R2*.fastq.gz" -exec ln -s {} . \\; || true
+
+    ls -lh ${params.out_root}/fastq/*.fastq.gz 2>/dev/null \\
+      || echo "No FASTQ files found for Individual: ${individualId}"
+    """
+}
+
+process STROBEALIGN {
+    publishDir "${params.out_root}/${familyID}/xams", mode: 'symlink'
+
+    input:
+    tuple val(familyID), val(individualID), path(fastq_R1), path(fastq_R2)
+
+    output:
+    tuple val(familyID), val(individualID), path("*.{b,cr}am"), path("*.*am.{b,cr}ai")
 
     script:
     """ 
-    echo "Sample ID: $sample_id"
-    echo "Fastq file 1: $fastq_ch1"
-    echo "Fastq file 2: $fastq_ch2"
+    touch ${individualID}.bam
+    touch ${individualID}.bam.bai
     """
 }
+
+
+
 
     // 1=male, 2=female, 0/-9=unknown/missing
     // 1=unaffected, 2=affected, 0/-9=missing
@@ -84,13 +88,7 @@ workflow {
     // Output directory
     MAKE_OUTPUT_ROOT_DIR()
 
-    // Channel.fromPath("${params.ped_file}")
-    //     | splitText
-    //     | map { it.split('\t') }
-    //     | filter { it.size() >= 6 }
-    //     | map { columns -> tuple(columns[0], columns[1]) }
-    //     | MAKE_FAMILY_SAMPLE_DIR
-
+    // Read pedigree file
     Channel.fromPath("${params.ped_file}")
         | splitText
         // | map { line -> line.trim().split('\t') }
@@ -107,12 +105,19 @@ workflow {
                     )
             }
         | groupTuple()  // group by family ID (= colums[0])
-        | set { families }
+        | set { pedigree_info }
     
-    MAKE_FAMILY_SAMPLE_DIR(families)
+    // Make output directories for each Family and Sample
+    pedigree_info
+        | flatMap { familyId, individuals ->
+            individuals.collect { indi -> tuple(familyId, indi.individualId)}
+            }
+        | MAKE_FAMILY_SAMPLE_DIR
+        | FIND_FASTQ
+        | STROBEALIGN
         | view
 
-    // families
+    // pedigree_info
     //     | map { familyTuple ->
     //     def familyId = familyTuple[0]
     //     def members = familyTuple[1..-1].flatten()
@@ -133,16 +138,8 @@ workflow {
     //     }
     //     | set { familyAnalysis }
 
-    // Find fastq files from the alignment directory for each sample
-    // Channel.frompath
-    
-     // Channel.fromPath( "${params.aln_dir}" )
-    //     | listFiles( pattern: "*_R{1,2}*.fastq" )
-    //     | map { it.baseName.replaceAll('_R[1,2]', '') }
-    //     | set { fastq_ids }
 
-
-    // Channel.fromFilePairs( "${params.aln_dir}/${sample_ids}*_R{1,2}*.fastq" )
+    // Channel.fromFilePairs( "${params.aln_dir}/${individual_ids}*_R{1,2}*.fastq" )
     //     | map { k, fastqs -> tuple(k, fastqs[0], fastqs[1]) }
     //     | view
     // //     | aln
