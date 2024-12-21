@@ -79,8 +79,6 @@ process STROBEALIGN {
 }
 
 
-
-
     // 1=male, 2=female, 0/-9=unknown/missing
     // 1=unaffected, 2=affected, 0/-9=missing
 
