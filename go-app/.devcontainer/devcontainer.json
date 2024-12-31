@@ -1,0 +1,24 @@
+// .devcontainer/devcontainer.json
+{
+	"name": "Go DevContainer Example",
+  
+	// Dockerfile指定 (同じフォルダ内の Dockerfile をビルド)
+	"dockerFile": "Dockerfile",
+  
+	// VS Code カスタマイズ (extensions や settings) をまとめる
+	"customizations": {
+	  "vscode": {
+		"extensions": [
+		  "golang.go",            // Go拡張
+		  "ms-azuretools.vscode-docker"
+		],
+		"settings": {
+		  "editor.formatOnSave": true
+		}
+	  }
+	},
+  
+	// コンテナ起動後に実行するコマンドなど
+	"postCreateCommand": "go version"
+  }
+  

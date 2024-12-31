@@ -63,7 +63,6 @@ process FIND_FASTQ {
 }
 
 process STROBEALIGN {
-    publishDir "${params.out_root}/${familyID}/xams", mode: 'symlink'
 
     input:
     tuple val(familyID), val(individualID), path(fastq_R1), path(fastq_R2)
@@ -78,9 +77,40 @@ process STROBEALIGN {
     """
 }
 
+process MARKDUP {
+    publishDir "${params.out_root}/${familyID}/xams", mode: 'symlink'
 
-    // 1=male, 2=female, 0/-9=unknown/missing
-    // 1=unaffected, 2=affected, 0/-9=missing
+    input:
+    tuple val(familyID), val(individualID), path(bam), path(bai)
+
+    output:
+    tuple val(familyID), val(individualID), path("*.marked.bam"), path("*.marked.bam.bai")
+
+    script:
+    """
+    touch ${individualID}.marked.bam
+    touch ${individualID}.marked.bam.bai
+    touch ${individualID}.marked_dup_metrics.txt
+    """
+}
+
+// process DEEPVARIANT {
+//     input:
+//     tuple val(familyID), val(individualID), path(bam), path(bai)
+
+//     output:
+    
+
+
+
+// }
+
+
+
+
+
+// 1=male, 2=female, 0/-9=unknown/missing
+// 1=unaffected, 2=affected, 0/-9=missing
 
 workflow {
     // Output directory
@@ -113,34 +143,28 @@ workflow {
         | MAKE_FAMILY_SAMPLE_DIR
         | FIND_FASTQ
         | STROBEALIGN
+        | MARKDUP
         | view
 
-    // pedigree_info
-    //     | map { familyTuple ->
-    //     def familyId = familyTuple[0]
-    //     def members = familyTuple[1..-1].flatten()
-    //     def memberCount = members.size()
-    //     def analysisType = ''
+    pedigree_info
+        | map { familyTuple ->
+            def familyId = familyTuple[0]
+            def members = familyTuple[1..-1].flatten()
+            def memberCount = members.size()
+            def analysisType = ''
 
-    //     if (memberCount == 3) {
-    //         analysisType = 'trio'
-    //     } else if (memberCount == 2) {
-    //         analysisType = 'duo'
-    //     } else if (memberCount == 4) {
-    //         analysisType = 'quad'
-    //     } else {
-    //         analysisType = 'singleton'
-    //     }
+            if (memberCount == 3) {
+                analysisType = 'trio'
+            } else if (memberCount == 2) {
+                analysisType = 'duo'
+            } else if (memberCount == 4) {
+                analysisType = 'quad'
+            } else {
+                analysisType = 'singleton'
+            }
 
-    //     return [familyId: familyId, members: members, analysisType: analysisType]
-    //     }
-    //     | set { familyAnalysis }
-
-
-    // Channel.fromFilePairs( "${params.aln_dir}/${individual_ids}*_R{1,2}*.fastq" )
-    //     | map { k, fastqs -> tuple(k, fastqs[0], fastqs[1]) }
-    //     | view
-    // //     | aln
-    // //     | view
-    
+        return [familyId: familyId, members: members, analysisType: analysisType]
+        }
+        // | set { familyAnalysis }
+        | view
 }
