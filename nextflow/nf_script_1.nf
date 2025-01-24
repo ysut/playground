@@ -99,24 +99,19 @@ process MARKDUP {
 //     tuple val(familyID), val(individualID), path(bam), path(bai)
 
 //     output:
-    
 
-
-
+//     script:
 // }
-
-
-
 
 
 // 1=male, 2=female, 0/-9=unknown/missing
 // 1=unaffected, 2=affected, 0/-9=missing
 
 workflow {
-    // Output directory
+    /// Output directory    ========================================
     MAKE_OUTPUT_ROOT_DIR()
 
-    // Read pedigree file
+    // Read pedigree file   ========================================
     Channel.fromPath("${params.ped_file}")
         | splitText
         // | map { line -> line.trim().split('\t') }
@@ -135,7 +130,7 @@ workflow {
         | groupTuple()  // group by family ID (= colums[0])
         | set { pedigree_info }
     
-    // Make output directories for each Family and Sample
+    // Make output directories for each Family and Sample ==========
     pedigree_info
         | flatMap { familyId, individuals ->
             individuals.collect { indi -> tuple(familyId, indi.individualId)}
@@ -144,7 +139,6 @@ workflow {
         | FIND_FASTQ
         | STROBEALIGN
         | MARKDUP
-        | view
 
     pedigree_info
         | map { familyTuple ->
@@ -167,4 +161,6 @@ workflow {
         }
         // | set { familyAnalysis }
         | view
+
+    
 }
