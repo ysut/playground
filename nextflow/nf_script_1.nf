@@ -107,6 +107,52 @@ process MARKDUP {
 // 1=male, 2=female, 0/-9=unknown/missing
 // 1=unaffected, 2=affected, 0/-9=missing
 
+// process GLNEXUS {
+
+//     input:
+//     tuple val(familyID), val(individualID), path(bam), path(bai)
+
+//     output:
+//     tuple val(familyID), val(individualID), path("*.glnexus.vcf.gz"), path("*.glnexus.vcf.gz.tbi")
+
+//     script:
+//     """
+//     touch ${individualID}.glnexus.vcf.gz
+//     touch ${individualID}.glnexus.vcf.gz.tbi
+//     """
+// }
+
+
+// process GCNV {
+//     input:
+//     tuple val(familyID), val(individualID), path(bam), path(bai)
+
+//     output:
+//     tuple val(familyID), val(individualID), path("*.gcnv.vcf.gz"), path("*.gcnv.vcf.gz.tbi")
+
+//     script:
+//     """
+//     touch ${individualID}.gcnv.vcf.gz
+//     touch ${individualID}.gcnv.vcf.gz.tbi
+//     """
+// }
+
+// process AUTOMAP {
+//     input:
+//     tuple val(familyID), val(individualID), path(bam), path(bai)
+
+//     output:
+//     tuple val(familyID), val(individualID), path("*.automap.vcf.gz"), path("*.automap.vcf.gz.tbi")
+
+//     script:
+//     """
+//     touch ${individualID}.automap.vcf.gz
+//     touch ${individualID}.automap.vcf.gz.tbi
+//     """
+// }
+
+
+
 workflow {
     /// Output directory    ========================================
     MAKE_OUTPUT_ROOT_DIR()
