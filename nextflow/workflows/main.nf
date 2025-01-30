@@ -115,8 +115,14 @@ workflow {
     この結果のディレクトリ構造は以下の通り．
     out_root/
         xams/
-        familyId/
-            individualId/
+        familyId_A/
+            individualId_A1/
+            individualId_A2/
+            ...
+        familyId_B/
+            individualId_B1/
+            individualId_B2/
+            ...
     */
     pedigree_info
         | flatMap { familyId, individuals ->
@@ -154,7 +160,7 @@ workflow {
                 def laneMatch = filename1 =~ /_(L\d+)_R\d+/
                 def laneID = laneMatch ? laneMatch[0][1] : 'unknown'
 
-                tuple(fileID, laneID, file1, file2)
+                tuple(fileID, laneID, file1, file2, params.fasta)
             }
         | STROBEALIGN
         | groupTuple()  // Group by fileID. Then, merge BAM files if there are multiple lanes.

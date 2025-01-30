@@ -1,5 +1,7 @@
 FROM continuumio/miniconda3:main
 
+ENV CONDA_DEFAULT_ENV strobealign
+
 RUN set -ex \
     && conda config --add channels bioconda \
     && conda config --add channels conda-forge \
@@ -14,6 +16,11 @@ RUN set -ex \
         > /dev/null \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN /opt/conda/bin/conda init bash
+
+# デフォルトのシェルを Bash に設定
+SHELL ["/bin/bash", "-c"]
 
 ENTRYPOINT ["tini", "--"]
 CMD [ "/bin/bash" ]

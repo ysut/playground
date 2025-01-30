@@ -7,30 +7,38 @@
 // 6. The FASTQ file name should NOT necessarily contain the sample number information (e.g. S1, S2, etc.)
 // Example: Rare_disease_cohort_99999_L003_R2_001.fastq.gz (99999 is the individual ID)
 
-// In docker container
-// conda activate strobealign -> conda run strobealign
+/*
+Using docker container with conda environment for the process, 
+"bash -c" is used to run the commands.
+In the script section, the commands are written in bash.
+e.g. 
+    script:
+    """
+    bash -c "source /opt/conda/etc/profile.d/conda.sh ...... "
+    """
+*/
+
 
 process STROBEALIGN {
     // container 'betelgeuse:5000/library/utsu/strobealign:0.14.0'
     
     input:
-    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2)
+    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
     
     output:
     tuple val(fileName), val(laneID), path("*.sorted.*am"), path("*.sorted.*ai")
 
     script:
     """
-    source /opt/conda/etc/profile.d/conda.sh && \\
-    /opt/conda/condabin/conda activate strobealign && \\ 
+    bash -c "source /opt/conda/etc/profile.d/conda.sh && \\
+    conda activate strobealign && \\
     
-    /opt/conda/condabin/conda run -n strobealign bash -c \\
-    " \\
     strobealign \\
-      --threads=8 ${params.fasta} ${fastq_R1} ${fastq_R2} \\
-        | samtools sort -o sorted.bam && \\
-    samtools index sorted.bam \\
-    "
+      --threads=8 ${reference} ${fastq_R1} ${fastq_R2} \\
+      --rg-id=tmp_id --rg=SM:tmp_id --rg=LB:mylibrary --rg=PL:Illumina \\
+        | samtools sort -o ${fileName}_${laneID}.sorted.bam && \\
+
+    samtools index ${fileName}_${laneID}.sorted.bam"
     """
 }
 
@@ -54,18 +62,24 @@ process MERGE_MULTIPLE_LANE_XAMS {
 
 process MARKDUP {
     publishDir "${params.out_root}/tmp", mode: 'symlink'
+    // publishDir "${params.output}", mode: 'copy', pattern: '*.txt'
 
     input:
-    tuple val(fileID), path(bam), path(bai)
+    tuple val(fileID), path(xam), path(xai)
 
     output:
-    tuple val(fileID), path("*.marked.bam"), path("*.marked.bam.bai")
+    tuple val(fileID), path("*.marked.*am")
+    // tuple val(fileID), path("*.marked.*am"), path("*.marked.*ai")
 
     script:
     """
-    touch ${fileID}.marked.bam
-    touch ${fileID}.marked.bam.bai
-    touch ${fileID}.marked_dup_metrics.txt
+    /opt/java/openjdk/bin/java -jar /usr/picard/picard.jar MarkDuplicates \\
+      -I ${xam} \\
+      -O ${fileID}_sorted.markdup.bam \\
+      -M ${fileID}_marked_dup_metrics.txt \\
+      --CREATE_INDEX true
+
+    # samtools index ${fileID}_sorted.markdup.bam
     """
 }
 
