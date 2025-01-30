@@ -11,17 +11,17 @@ process STROBEALIGN {
     // container 'betelgeuse:5000/library/utsu/strobealign:0.14.0'
     
     input:
-    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
+    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2)
     
     output:
     tuple val(fileName), val(laneID), path("*.sorted.*am"), path("*.sorted.*ai")
 
     script:
     """
-    conda activate strobealign && \\
+    /opt/conda/condabin/conda activate strobealign && \\
     
     strobealign \\
-      --threads=8 ${reference} ${fastq_R1} ${fastq_R2} 
+      --threads=8 ${params.fasta} ${fastq_R1} ${fastq_R2} 
         | samtools sort -o sorted.bam && \\
     
     samtools index sorted.bam

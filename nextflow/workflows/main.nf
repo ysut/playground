@@ -17,9 +17,9 @@ include {
 include { 
     DEEPVARIANT; DEEPTRIO; DEEPTRIO_FOR_QUAD; DEEPVARIANT_FOR_SIBLING; GLNEXUS
     } from './modules/call_snvindels.nf'
-include { 
-    EXPANSIONHUNTER 
-    } from './modules/call_repeat.nf'
+// include { 
+//     EXPANSIONHUNTER 
+//     } from './modules/call_repeat.nf'
 
 // Debugging includes (suffix 2)
 // include { 
