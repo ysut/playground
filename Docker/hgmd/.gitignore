@@ -1,0 +1,4 @@
+mariadb_data/
+initdb/
+dump/
+!.env

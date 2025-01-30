@@ -7,6 +7,9 @@
 // 6. The FASTQ file name should NOT necessarily contain the sample number information (e.g. S1, S2, etc.)
 // Example: Rare_disease_cohort_99999_L003_R2_001.fastq.gz (99999 is the individual ID)
 
+// In docker container
+// conda activate strobealign -> conda run strobealign
+
 process STROBEALIGN {
     // container 'betelgeuse:5000/library/utsu/strobealign:0.14.0'
     
@@ -18,13 +21,16 @@ process STROBEALIGN {
 
     script:
     """
-    /opt/conda/condabin/conda activate strobealign && \\
+    source /opt/conda/etc/profile.d/conda.sh && \\
+    /opt/conda/condabin/conda activate strobealign && \\ 
     
+    /opt/conda/condabin/conda run -n strobealign bash -c \\
+    " \\
     strobealign \\
-      --threads=8 ${params.fasta} ${fastq_R1} ${fastq_R2} 
+      --threads=8 ${params.fasta} ${fastq_R1} ${fastq_R2} \\
         | samtools sort -o sorted.bam && \\
-    
-    samtools index sorted.bam
+    samtools index sorted.bam \\
+    "
     """
 }
 
