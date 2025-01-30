@@ -56,6 +56,7 @@ process MERGE_MULTIPLE_LANE_XAMS {
     samtools merge --threads 4 \\
       -o ${fileID}_lane_merged.bam \\
       \${input_bams} && \\
+
     samtools index ${fileID}_lane_merged.bam
     """
 }
@@ -68,7 +69,7 @@ process MARKDUP {
     tuple val(fileID), path(xam), path(xai)
 
     output:
-    tuple val(fileID), path("*.marked.*am")
+    tuple val(fileID), path("*.markdup.*am")
     // tuple val(fileID), path("*.marked.*am"), path("*.marked.*ai")
 
     script:
