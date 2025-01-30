@@ -41,6 +41,7 @@ process MAKE_OUTPUT_ROOT_DIR {
     mkdir -p ${params.out_root}
     mkdir -p ${params.out_root}/xams
     mkdir -p ${params.out_root}/tmp
+    mkdir -p ${params.out_root}/markdup_metrics
     """
 }
 
@@ -79,8 +80,8 @@ workflow {
 
     // STEP 2: Read the input pedigree file and create directories for each family and sample
     /* 
-    Pedigree fileの読み込み．
-    pedigree_infoとしてまとめておく 
+    Pedigree fileの読み込み．pedigree_infoとしてまとめておく．
+    [familyId, [member1, member2, ...], ...] の形式で保存．
     */
     Channel.fromPath("${params.ped_file}")
         | splitText
