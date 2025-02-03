@@ -150,3 +150,19 @@ process EDIT_RG {
     // touch ${sample_id}.bam.bai
 }
 
+
+process DEEPVARIANT {
+    publishDir "${params.out_root}/deepvariant", mode: 'symlink'
+
+    input:
+    tuple val(sample_id), path(xam), path(xai)
+
+    output:
+    tuple val(sample_id), path("${sample_id}.deepvariant.*am"), path("${sample_id}.deepvariant.*ai")
+
+    script:
+    """
+    /opt/deepvariant/bin/run_deepvariant \\
+      --dry_run true
+    """
+}
