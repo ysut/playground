@@ -57,7 +57,8 @@ Cargo.lock
 
 # nextflow
 nextflow/.nextflow.log*
-nextflow/work/
+nextflow/work/*
 nextflow/.nextflow/
 nextflow/myfiles/*/.nextflow/
 nextflow/log/
+nextflow/WES-*
