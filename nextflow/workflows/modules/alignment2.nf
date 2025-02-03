@@ -9,13 +9,14 @@
 
 process STROBEALIGN {
     input:
-    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2)
+    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
 
     output:
     tuple val(fileName), val(laneID), path("*.{b,cr}am"), path("*.*am.{b,cr}ai")
 
     script:
     """ 
+    echo ${reference}
     touch ${fileName}_${laneID}.bam
     touch ${fileName}_${laneID}.bam.bai
     """
