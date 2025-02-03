@@ -21,7 +21,7 @@ params.out_root = "${params.output}/WES-WF_Results_" + new Date().format('yyyyMM
 //     EXPANSIONHUNTER 
 //     } from './modules/call_repeat.nf'
 
-Debugging includes (suffix 2)
+// Debugging includes (suffix 2)
 include { 
     STROBEALIGN; MERGE_MULTIPLE_LANE_XAMS; MARKDUP; RENAME_XAM; EDIT_RG 
     } from './modules/alignment2.nf'
