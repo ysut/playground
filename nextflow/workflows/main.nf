@@ -231,6 +231,7 @@ workflow {
         | combine(family_ch)
         | map { _, family -> family }
         | filter { it.analysisType == 'singleton' }
+        | view
         | map { family -> 
                 return [
                     family_id    : family.familyId,
