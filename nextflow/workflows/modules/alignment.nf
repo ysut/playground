@@ -18,6 +18,8 @@ e.g.
 */
 
 process STROBEALIGN {
+    container "betelgeuse:5000/library/utsu/strobealign:0.14.0"
+
     input:
     tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
     
@@ -60,6 +62,9 @@ process MERGE_MULTIPLE_LANE_XAMS {
 }
 
 process MARKDUP {
+    container 'betelgeuse:5000/library/utsu/picard:3.3.0'
+    containerOptions "--security-opt seccomp=unconfined"
+
     publishDir "${params.out_root}/tmp", mode: 'symlink', pattern: '*.*a[mi]'
     publishDir "${params.output}/markdup_metrics", mode: 'move', pattern: '*.txt'
 
