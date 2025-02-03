@@ -235,9 +235,11 @@ workflow {
                 return [
                     family_id    : family.familyId,
                     sample_id    : family.members[0].individualId,
+                    sex          : family.members[0].sex,
                     analysisType : family.analysisType
                 ]
             }
+        | view
         | DEEPVARIANT
     
     /*
@@ -303,6 +305,7 @@ workflow {
                     proband_id   : proband.individualId,
                     mother_id    : mother ? mother.individualId : null,
                     father_id    : father ? father.individualId : null,
+                    sex          : proband.sex,
                     analysisType : family.analysisType
                 ]
             }
@@ -356,6 +359,7 @@ workflow {
                     mother_id    : mother ? mother.individualId : null,
                     father_id    : father ? father.individualId : null,
                     sibling_id   : sibling ? sibling.individualId : null,
+                    sex          : proband.sex,
                     analysisType : family.analysisType
                 ]
             }

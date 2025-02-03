@@ -236,6 +236,7 @@ workflow {
                 return [
                     family_id    : family.familyId,
                     sample_id    : family.members[0].individualId,
+                    sex          : family.members[0].sex,
                     analysisType : family.analysisType
                 ]
             }
