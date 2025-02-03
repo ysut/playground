@@ -5,12 +5,11 @@
 // 4. The FASTQ file name should contain the file extension (.fastq.gz)
 // 5. The FASTQ file name should NOT necessarily contain the family ID
 // 6. The FASTQ file name should NOT necessarily contain the sample number information (e.g. S1, S2, etc.)
-// Example: Rare_disease_cohort_99999_L003_R2_001.fastq.gz (99999 is the individual ID)
+// Example: Rare_disease_cohort_99999_L003_R2_001.fastq.gz
 
 /*
 Using docker container with conda environment for the process, 
 "bash -c" is used to run the commands.
-In the script section, the commands are written in bash.
 e.g. 
     script:
     """
@@ -18,10 +17,7 @@ e.g.
     """
 */
 
-
 process STROBEALIGN {
-    // container 'betelgeuse:5000/library/utsu/strobealign:0.14.0'
-    
     input:
     tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
     
@@ -30,7 +26,8 @@ process STROBEALIGN {
 
     script:
     """
-    bash -c "source /opt/conda/etc/profile.d/conda.sh && \\
+    bash -c " \\
+    source /opt/conda/etc/profile.d/conda.sh && \\
     conda activate strobealign && \\
     
     strobealign \\
@@ -38,7 +35,8 @@ process STROBEALIGN {
       --rg-id=tmp_id --rg=SM:tmp_id --rg=LB:mylibrary --rg=PL:Illumina \\
         | samtools sort -o ${fileName}_${laneID}.sorted.bam && \\
 
-    samtools index ${fileName}_${laneID}.sorted.bam"
+    samtools index ${fileName}_${laneID}.sorted.bam \\
+    "
     """
 }
 
@@ -51,36 +49,35 @@ process MERGE_MULTIPLE_LANE_XAMS {
 
     script:
     """
-    input_bams="${xams.join(' ')}"
+    input_xams="${xams.join(' ')}"
     input_xais="${xais.join(' ')}"
     samtools merge --threads 4 \\
       -o ${fileID}_lane_merged.bam \\
-      \${input_bams} && \\
+      \${input_xams} && \\
 
     samtools index ${fileID}_lane_merged.bam
     """
 }
 
 process MARKDUP {
-    publishDir "${params.out_root}/tmp", mode: 'symlink'
-    // publishDir "${params.output}", mode: 'copy', pattern: '*.txt'
+    publishDir "${params.out_root}/tmp", mode: 'symlink', pattern: '*.*a[mi]'
+    publishDir "${params.output}/markdup_metrics", mode: 'move', pattern: '*.txt'
 
     input:
     tuple val(fileID), path(xam), path(xai)
 
     output:
-    tuple val(fileID), path("*.markdup.*am")
-    // tuple val(fileID), path("*.marked.*am"), path("*.marked.*ai")
+    // tuple val(fileID), path("*.markdup.*am")
+    tuple val(fileID), path("*.marked.*am"), path("*.marked.*ai")
 
     script:
     """
-    /opt/java/openjdk/bin/java -jar /usr/picard/picard.jar MarkDuplicates \\
+    /opt/java/openjdk/bin/java -jar /usr/picard/picard.jar \\
+      MarkDuplicates \\
       -I ${xam} \\
-      -O ${fileID}_sorted.markdup.bam \\
-      -M ${fileID}_marked_dup_metrics.txt \\
+      -O ${fileID}.sorted.marked.bam \\
+      -M ${fileID}.marked_dup_metrics.txt \\
       --CREATE_INDEX true
-
-    # samtools index ${fileID}_sorted.markdup.bam
     """
 }
 
@@ -121,6 +118,8 @@ process RENAME_XAM {
     if [ -e "\${bai_files[0]}" ]; then
         mv "\${bai_files[0]}" "${sample_id}.sorted.marked.bam.bai"
     fi
+
+    echo "Renamed files: \${bai_files}"
     """
 }
 
@@ -132,33 +131,22 @@ process EDIT_RG {
     tuple val(sample_id), path(xam), path(xai)
 
     output:
-    tuple val(sample_id), path("${sample_id}.*am"), path("${sample_id}.*ai")
+    tuple val(sample_id), path("${sample_id}.processed.*am"), path("${sample_id}.processed.*ai")
 
     script:
+    """ 
+    /opt/java/openjdk/bin/java -jar /usr/picard/picard.jar \\
+      AddOrReplaceReadGroups \\
+      -I ${xam} \\
+      -O ${sample_id}.processed.bam \\
+      -ID ${sample_id} \\
+      -LB lib1 \\
+      -PL ILLUMINA \\
+      -PU unit1 \\
+      -SM 20 \\
+      --CREATE_INDEX true
     """
-    touch ${sample_id}.bam
-    touch ${sample_id}.bam.bai
-    """
+    // touch ${sample_id}.bam
+    // touch ${sample_id}.bam.bai
 }
 
-
-
-process STROBEALIGN2 {
-    container 'betelgeuse:5000/library/utsu/strobealign:0.14.0'
-    
-    input:
-    tuple path(read1), path(read2), path(reference), val(sample_id)
-    
-    output:
-    tuple path('sorted.bam'), path('sorted.bam.bai'), val(sample_id)
-
-    script:
-    """
-    conda activate strobealign && \\
-    strobealign \\
-      --threads=8 ${reference} ${read1} ${read2} 
-      --rg-id=tmp_id --rg=SM:tmp_id --rg=LB:mylibrary --rg=PL:Illumina
-        | samtools sort -o sorted.bam && \\
-    samtools index sorted.bam
-    """
-}
