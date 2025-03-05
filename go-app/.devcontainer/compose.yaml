@@ -1,6 +1,13 @@
 services:
-  golang:
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - 8080:80
-    build: .
-    image: 
+      - "5505:80"
+    volumes:
+      - type: bind
+        source: ../
+        target: /workspace
+    stdin_open: true
+    tty: true

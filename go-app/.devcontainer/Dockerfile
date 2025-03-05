@@ -1,8 +1,11 @@
 # Use official Golang image
-FROM golang:1.24.0
+FROM golang:1.24.1
 
-# Install some tools
-RUN apt-get update && apt-get install -y make git
+RUN set -ex \
+	&& apt-get update > /dev/null \
+	&& apt-get install --no-install-recommends --yes \
+		git \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
-# 作業ディレクトリ作成 (VS Codeが自動で /workspaces/<プロジェクト名> にマウントしてくれる)
 WORKDIR /workspace
