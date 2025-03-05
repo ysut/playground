@@ -2,8 +2,13 @@
 
 set -eu
 
-nextflow -log log/nflog run nf_script_1.nf --ped_file myfiles/cohort.ped --fastq_dir myfiles/fastq
+source /betelgeuse07/analysis/utsu/envs/nextflow.sh
+scp -r utsu@192.168.2.97:/home/utsu/Desktop/GitHub/playground/nextflow/workflows ./
+nextflow -log log/nfx.log run -resume workflows/main.nf --ped_file workflows/myfiles/server_test.ped --fastq_dir files/fastqs/ --bam_dir files/bams/
+
+
+## Trio -bg
+nextflow -log log/nfx.log run -bg -resume workflows/main.nf --ped_file workflows/myfiles/server_test_trio.ped --fastq_dir files/fastqs/ --bam_dir files/bams/ > bg.log
 
 nextflow -log log/nfx.log run -resume workflows/main.nf --ped_file workflows/myfiles/server_test.ped --fastq_dir files/fastqs/
 
-nextflow -log log/nfx.log run workflows/main.nf --ped_file workflows/myfiles/server_test.ped --fastq_dir files/fastqs/

@@ -17,15 +17,34 @@ e.g.
     """
 */
 
-process STROBEALIGN {
-    container "betelgeuse:5000/library/utsu/strobealign:0.14.0"
-    containerOptions "--security-opt seccomp=unconfined"
-
+process STROBEALIGN_INDEX {
     input:
-    tuple val(fileName), val(laneID), path(fastq_R1), path(fastq_R2), path(reference)
-    
+    tuple val(reference)
+
     output:
-    tuple val(fileName), val(laneID), path("*.sorted.*am"), path("*.sorted.*ai")
+    tuple val(reference), path("*.fai")
+
+    script:
+    """
+    bash -c " \\
+    source /opt/conda/etc/profile.d/conda.sh && \\
+    conda activate strobealign && \\
+
+    strobealign index ${reference} \\
+    
+    samtools faidx ${reference}
+    """
+}
+
+
+
+process STROBEALIGN {
+    input:
+    tuple val(fileID), val(key), path(reference), path(reference_index),
+          path(fastq_R1), path(fastq_R2)
+
+    output:
+    tuple val(fileID), val(key), path("*.sorted.bam"), path("*.sorted.bam.bai")
 
     script:
     """
@@ -34,47 +53,52 @@ process STROBEALIGN {
     conda activate strobealign && \\
     
     strobealign \\
-      --threads=8 ${reference} ${fastq_R1} ${fastq_R2} \\
-      --rg-id=tmp_id --rg=SM:tmp_id --rg=LB:mylibrary --rg=PL:Illumina \\
-        | samtools sort -o ${fileName}_${laneID}.sorted.bam && \\
+      ${reference} ${fastq_R1} ${fastq_R2} \\
+      --threads=${params.strobealign_threads} \\
+      --rg-id=tmp_id --rg=SM:tmp_id \\
+      --rg=LB:${params.rg_library} --rg=PL:${params.rg_platform} \\
+      | samtools sort -@ ${params.samtools_threads} -o ${key}.sorted.bam && \\
 
-    samtools index ${fileName}_${laneID}.sorted.bam \\
+    samtools index ${key}.sorted.bam \\
     "
     """
 }
 
 process MERGE_MULTIPLE_LANE_XAMS {
     input:
-    tuple val(fileID), val(laneID), path(xams), path(xais)
+    tuple val(fileID), path(xams), path(xais)
 
     output:
-    tuple val(fileID), path("*_lane_merged.*am"), path("*_lane_merged.*ai")
+    tuple val(fileID), path("*_merged.bam"), path("*_merged.bam.bai")
 
     script:
     """
     input_xams="${xams.join(' ')}"
     input_xais="${xais.join(' ')}"
-    samtools merge --threads 4 \\
-      -o ${fileID}_lane_merged.bam \\
+    samtools merge \\
+      --threads ${params.samtools_threads} \\
+      -o ${fileID}_merged.bam \\
       \${input_xams} && \\
 
-    samtools index ${fileID}_lane_merged.bam
+    samtools index ${fileID}_merged.bam
     """
 }
 
 process MARKDUP {
-    container 'betelgeuse:5000/library/utsu/picard:3.3.0'
-    containerOptions "--security-opt seccomp=unconfined"
-
-    publishDir "${params.out_root}/tmp", mode: 'symlink', pattern: '*.*a[mi]'
-    publishDir "${params.output}/markdup_metrics", mode: 'move', pattern: '*.txt'
+    publishDir "${params.out_root}/reports/MarkdupMetrics", 
+               mode: 'move', pattern: '*.marked_dup_metrics.txt'
+    publishDir "${params.out_root}/intermediate_files/MarkDuplicates", 
+               mode: 'symlink', pattern: '*.bam'
+    publishDir "${params.out_root}/intermediate_files/MarkDuplicates", 
+               mode: 'symlink', pattern: '*.bai'
 
     input:
     tuple val(fileID), path(xam), path(xai)
 
     output:
-    // tuple val(fileID), path("*.markdup.*am")
-    tuple val(fileID), path("*.marked.*am"), path("*.marked.*ai")
+    tuple val(fileID), 
+          path("*.sorted.marked.bam"), path("*.sorted.marked.bai"), 
+          path("*.marked_dup_metrics.txt")
 
     script:
     """
@@ -88,59 +112,43 @@ process MARKDUP {
 }
 
 process RENAME_XAM {
-    publishDir "${params.out_root}/tmp", mode: 'symlink'
+    publishDir "${params.out_root}/intermediate_files", mode: 'symlink'
 
     input:
     val(sample_id)
 
     output:
-    tuple val(sample_id), path("${sample_id}.*am"), path("${sample_id}.*ai")
+    tuple val(sample_id),
+          path("${sample_id}.sorted.marked.bam"),
+          path("${sample_id}.sorted.marked.bam.bai")
 
     script:
     """
-    # Find the .cram and .bam files in the temporary directory
+    tmp_dir="${params.out_root}/intermediate_files/MarkDuplicates"
 
-    # Rename the .cram files
-    cram_files=( "${params.out_root}/tmp/"*${sample_id}*.cram )
-    if [ -e "\${cram_files[0]}" ]; then
-        mv "\${cram_files[0]}" "${sample_id}.sorted.marked.cram"
-    fi
-
-    # Rename the .bam files
-    bam_files=( "${params.out_root}/tmp/"*${sample_id}*.bam )
-    echo "bam_files: \${bam_files}"
-    if [ -e "\${bam_files[0]}" ]; then
-        mv "\${bam_files[0]}" "${sample_id}.sorted.marked.bam"
-    fi
-
-    # Rename the .crai files
-    crai_files=( "${params.out_root}/tmp/"*${sample_id}*.crai )
-    if [ -e "\${crai_files[0]}" ]; then
-        mv "\${crai_files[0]}" "${sample_id}.sorted.marked.cram.crai"
-    fi
-
-    # Rename the .bai files
-    bai_files=( "${params.out_root}/tmp/"*${sample_id}*.bai )
-    if [ -e "\${bai_files[0]}" ]; then
-        mv "\${bai_files[0]}" "${sample_id}.sorted.marked.bam.bai"
-    fi
-
-    echo "Renamed files: \${bai_files}"
+    for ext in bam bai; do
+      files=( "\${tmp_dir}"/*${sample_id}*.\${ext} )
+      if [ -e "\${files[0]}" ]; then
+        case "\${ext}" in
+          bam)
+            new_name="${sample_id}.sorted.marked.bam"
+            ;;
+          bai)
+            new_name="${sample_id}.sorted.marked.bam.bai"
+            ;;
+        esac
+        mv "\${files[0]}" "\${new_name}"
+      fi
+    done
     """
 }
 
-
 process EDIT_RG {
-    container = 'betelgeuse:5000/library/utsu/picard:3.3.0'
-    containerOptions = '--security-opt seccomp=unconfined'
-    
-    publishDir "${params.out_root}/xams", mode: 'symlink'
-
     input:
     tuple val(sample_id), path(xam), path(xai)
 
     output:
-    tuple val(sample_id), path("${sample_id}.processed.*am"), path("${sample_id}.processed.*ai")
+    tuple val(sample_id), path("${sample_id}.processed.bam")
 
     script:
     """ 
@@ -149,29 +157,25 @@ process EDIT_RG {
       -I ${xam} \\
       -O ${sample_id}.processed.bam \\
       -ID ${sample_id} \\
-      -LB lib1 \\
-      -PL ILLUMINA \\
+      -LB ${params.rg_library} \\
+      -PL ${params.rg_platform} \\
       -PU unit1 \\
       -SM 20 \\
-      --CREATE_INDEX true
+      --CREATE_INDEX false
     """
-    // touch ${sample_id}.bam
-    // touch ${sample_id}.bam.bai
 }
 
-
-process DEEPVARIANT {
-    publishDir "${params.out_root}/deepvariant", mode: 'symlink'
-
+process INDEX_XAM {
+    publishDir "${params.out_root}/xams", mode: 'symlink'
+    
     input:
-    tuple val(sample_id), path(xam), path(xai)
+    tuple val(sample_id), path(processed_xam)
 
     output:
-    tuple val(sample_id), path("${sample_id}.deepvariant.*am"), path("${sample_id}.deepvariant.*ai")
+    tuple val(sample_id), path(processed_xam), path("*.*ai")
 
     script:
     """
-    /opt/deepvariant/bin/run_deepvariant \\
-      --dry_run true
+    samtools index -@ ${params.samtools_threads} ${processed_xam}
     """
 }

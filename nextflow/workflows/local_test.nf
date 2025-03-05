@@ -23,9 +23,6 @@ params.out_root = "${params.output}/WES-WF_Results_" + new Date().format('yyyyMM
 
 // Debugging includes (suffix 2)
 include { 
-    MAKE_OUTPUT_ROOT_DIR; MAKE_FAMILY_SAMPLE_DIR
-    } from './modules/utils.nf'
-include { 
     STROBEALIGN; MERGE_MULTIPLE_LANE_XAMS; MARKDUP; RENAME_XAM; EDIT_RG 
     } from './modules/alignment2.nf'
 include { 
@@ -34,6 +31,33 @@ include {
 include { 
     EXPANSIONHUNTER 
     } from './modules/call_repeat2.nf'
+
+
+
+// === Processes ===
+process MAKE_OUTPUT_ROOT_DIR {
+    script:
+    """
+    mkdir -p ${params.out_root}
+    mkdir -p ${params.out_root}/xams
+    mkdir -p ${params.out_root}/tmp
+    mkdir -p ${params.out_root}/markdup_metrics
+    """
+}
+
+process MAKE_FAMILY_SAMPLE_DIR {
+    input:
+    tuple val(familyID), val(individual_id)
+
+    output:
+    tuple val(individual_id), val(familyID)
+
+    script:
+    """
+    mkdir -p ${params.out_root}/${familyID}/${individual_id}
+    mkdir -p ${params.out_root}/${familyID}/raw_VCFs
+    """
+}
 
 // 1=male, 2=female, 0/-9=unknown/missing
 // 1=unaffected, 2=affected, 0/-9=missing
@@ -211,11 +235,9 @@ workflow {
                 return [
                     family_id    : family.familyId,
                     sample_id    : family.members[0].individualId,
-                    sex          : family.members[0].sex,
                     analysisType : family.analysisType
                 ]
             }
-        | view
         | DEEPVARIANT
     
     /*
@@ -281,7 +303,6 @@ workflow {
                     proband_id   : proband.individualId,
                     mother_id    : mother ? mother.individualId : null,
                     father_id    : father ? father.individualId : null,
-                    sex          : proband.sex,
                     analysisType : family.analysisType
                 ]
             }
@@ -335,7 +356,6 @@ workflow {
                     mother_id    : mother ? mother.individualId : null,
                     father_id    : father ? father.individualId : null,
                     sibling_id   : sibling ? sibling.individualId : null,
-                    sex          : proband.sex,
                     analysisType : family.analysisType
                 ]
             }

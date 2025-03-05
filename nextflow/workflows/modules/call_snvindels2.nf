@@ -23,7 +23,7 @@ process DEEPVARIANT {
     publishDir "${params.out_root}/${family_id}/raw_vcfs", mode: 'symlink'
 
     input:
-    tuple val(family_id), val(sample_id), val(anlysis_type)
+    tuple val(family_id), val(sample_id),  val(xx_or_xy), val(anlysis_type)
 
     output:
     // tuple val(family_id), val(sample_id), path("*.vcf.gz"), path("*.vcf.gz.tbi")
@@ -43,7 +43,7 @@ process DEEPTRIO {
     publishDir "${params.out_root}/${family_id}/raw_vcfs", mode: 'symlink'
 
     input:
-    tuple val(family_id), val(proband_id), val(mother_id), val(father_id), val(analysis_type)
+    tuple val(family_id), val(proband_id), val(mother_id), val(father_id), val(xx_or_xy), val(analysis_type)
 
     output:
     tuple val(family_id), path("*.g.vcf.gz"), path("*.g.vcf.gz.tbi")
@@ -99,7 +99,7 @@ process DEEPTRIO_FOR_QUAD {
     publishDir "${params.out_root}/${family_id}/raw_vcfs", mode: 'symlink'
 
     input:
-    tuple val(family_id), val(proband_id), val(mother_id), val(father_id), val(sibling_id), val(analysis_type)
+    tuple val(family_id), val(proband_id), val(mother_id), val(father_id), val(sibling_id), val(xx_or_xy), val(analysis_type)
 
     output:
     tuple val(family_id), path("*.g.vcf.gz"), path("*.g.vcf.gz.tbi"), val(sibling_id)
@@ -139,7 +139,7 @@ process DEEPVARIANT_FOR_SIBLING {
     publishDir "${params.out_root}/${family_id}/raw_vcfs", mode: 'symlink'
 
     input:
-    tuple val(family_id), path(gvcfs_wo_sibling), path(gvcfs_index_wo_sibling), val(sibling_id)
+    tuple val(family_id), path(gvcfs_wo_sibling), path(gvcfs_index_wo_sibling), val(sibling_id), val(xx_or_xy)
 
     output:
     tuple val(family_id), path(gvcfs_wo_sibling), path(gvcfs_index_wo_sibling), path("*_sibling.g.vcf.gz"), path("*_sibling.g.vcf.gz.tbi")
