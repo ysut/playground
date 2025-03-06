@@ -1,11 +1,11 @@
 {
 	"name": "Vite-React-DB-Redis",
-	"dockerComposeFile": "./compose.yaml",
-	"service": "go-app",
+	"dockerComposeFile": "../compose.yaml",
+	"service": "react",
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"esbenp.prettier-vscode",
+				"biomejs.biome",
 				"VisualStudioExptTeam.vscodeintellicode",
 				"ms-azuretools.vscode-docker"
 			],
@@ -13,9 +13,20 @@
 				"files.encoding": "utf8",
                 "files.eol": "\n",
 				"terminal.integrated.shell.linux": "/bin/bash",
-                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.defaultFormatter": "biomejs.biome",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"quickfix.biome": "explicit",
+					"source.organizeImports.biome": "explicit"
+				},
                 "[javascript]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                    "editor.defaultFormatter": "biomejs.biome"
+				},
+				"[typescript]": {
+					"editor.defaultFormatter": "biomejs.biome"
+				},
+				"[typescriptreact]": {
+					"editor.defaultFormatter": "biomejs.biome"
 				}
 			}
 		}

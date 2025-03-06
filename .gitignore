@@ -62,3 +62,8 @@ nextflow/.nextflow/
 nextflow/myfiles/*/.nextflow/
 nextflow/log/
 nextflow/WES-*
+
+
+# react
+postgres-data/
+node_modules/
