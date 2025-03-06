@@ -1,0 +1,68 @@
+volumes:
+  node_modules
+
+services:
+  app:
+    build:
+      args:
+        - NODE_VERSION: 23.9.0-bullseye-slim
+      context: .
+      dockerfile: Dockerfile
+    container_name: vite-container
+    ports:
+      - "5173:5173"
+    volumes:
+      - type: bind
+        source: ../
+        target: /var/www/html/app
+      - type: volume
+        source: node_modules
+        target: /var/www/html/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
+    environment:
+      - WATCHPACK_POLLING: true
+    stdin_open: true
+    tty: true
+  
+  redis:
+    image: redis:7.4.2-bookworm
+    container_name: redis-container
+    hostname: redis
+    ports:
+      - "6379:6379"
+  
+  postgres:
+    image: postgres:13
+    container_name: postgres-container
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: volume
+        source: ../postgres-data
+        target: /var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER: postgres
+      - POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  
+  adminer:
+    image: adminer:4.17.1-standalone
+    container_name: adminer-container
+    hostname: adminer
+    ports:
+      - "8080:8080"
+    deppends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
