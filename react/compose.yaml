@@ -15,7 +15,7 @@ services:
         target: /home/node/app
       - type: volume
         source: node_modules
-        target: /home/node/node_modules
+        target: /home/node/vite/node_modules
     depends_on:
       postgres:
         condition: service_healthy
