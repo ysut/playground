@@ -373,9 +373,12 @@ process MERGE_BCFS_FOR_MALE_CHILD_TRIO {
 }
 
 process DEEPTRIO_FEMALE_CHILD {
-    publishDir "${params.out_root}/${family_id}/raw/gvcfs", mode: 'symlink', pattern: '*.g.vcf.gz'
-    publishDir "${params.out_root}/${family_id}/raw/gvcfs", mode: 'symlink', pattern: '*.g.vcf.gz.tbi'
-    publishDir "${params.out_root}/${family_id}/misc/reports/DeepTrioreports", mode: 'move', pattern: '*.html'
+    publishDir "${params.out_root}/${family_id}/raw_vcfs/gvcfs", 
+                mode: 'symlink', pattern: '*.g.vcf.gz*'
+    publishDir "${params.out_root}/${family_id}/raw_vcfs/vcfs", 
+                mode: 'symlink', pattern: '*.g.vcf.gz*'
+    publishDir "${params.out_root}/${family_id}/misc/reports/DeepTrioreports", 
+                mode: 'move', pattern: '*.html'
 
     input:
     tuple val(family_id), path(reference), path(reference_index),
@@ -383,13 +386,13 @@ process DEEPTRIO_FEMALE_CHILD {
           path(child_xam), path(dad_xam), path(mom_xam), 
           path(child_xai), path(dad_xai), path(mom_xai),
           val(sex), val(analysis_type),
-          path(par_bed)
+          path(par_bed), path(par_bed_index)
 
     output:
-    tuple val(family_id), 
-          path("*.g.vcf.gz"), 
-          path("*.g.vcf.gz.tbi"), 
-          val(analysis_type),
+    tuple val(family_id), path(reference), path(reference_index),
+          val(child_id), val(dad_id), val(mom_id),
+          path("*.g.vcf.gz"), path("*.g.vcf.gz.tbi"), 
+          path(par_bed), path(par_bed_index),
           path("*.html")
 
     script:
@@ -401,12 +404,12 @@ process DEEPTRIO_FEMALE_CHILD {
       --reads_parent1=${dad_xam} \\
       --reads_parent2=${mom_xam} \\
       --output_vcf_child=daughter_${child_id}.vcf.gz \\
-      --output_vcf_parent1=${dad_id}.vcf.gz \\
-      --output_vcf_parent2=${mom_id}.vcf.gz \\
-      --output_gvcf_child=${child_id}.g.vcf.gz \\
-      --output_gvcf_parent1=${dad_id}.g.vcf.gz \\
-      --output_gvcf_parent2=${mom_id}.g.vcf.gz \\
-      --sample_name_child="son_${child_id}" \\
+      --output_vcf_parent1=dad_${dad_id}.vcf.gz \\
+      --output_vcf_parent2=mom_${mom_id}.vcf.gz \\
+      --output_gvcf_child=daughter_${child_id}.g.vcf.gz \\
+      --output_gvcf_parent1=dad_${dad_id}.g.vcf.gz \\
+      --output_gvcf_parent2=mom_${mom_id}.g.vcf.gz \\
+      --sample_name_child="daughter_${child_id}" \\
       --sample_name_parent1="father_${dad_id}" \\
       --sample_name_parent2="mother_${mom_id}" \\
       --postprocess_variants_parent1_extra_args="--haploid_contigs=\\"chrX,chrY\\",--par_regions_bed=\\"${par_bed}\\"" \\
@@ -418,18 +421,22 @@ process DEEPTRIO_FEMALE_CHILD {
 }
 
 process GLNEXUS_FOR_FEMALE_TRIO {
-    publishDir "${params.out_root}/${family_id}/joint_vcf", mode: 'symlink', pettern: '*trio_joint.bcf'
+    publishDir "${params.out_root}/${family_id}/merged_bcf", 
+               mode: 'symlink', pattern: '*.trio_merged.bcf*'
 
     input:
-    tuple val(family_id), 
-          path(input_gvcfs), 
-          path(input_gvcfs_index),
-          val(analysis_type),
-          path(rename_map)
+    tuple val(family_id), path(reference), path(reference_index),
+          val(child_id), val(dad_id), val(mom_id),
+          path(input_gvcfs), path(input_gvcfs_tbi), 
+          path(input_X_incl_PAR_gvcfs), path(input_X_incl_PAR_gvcfs_tbis), 
+          path(input_Y_incl_PAR_gvcfs), path(input_Y_incl_PAR_gvcfs_tbis), 
+          path(dad_X_nonPAR_bcf), path(dad_X_nonPAR_bcf_csi),
+          path(par_bed), path(par_bed_index),
+          val(_), val(_), val(_)
     
     output:
     tuple val(family_id), 
-          path("*.trio_joint.bcf")
+          path("${family_id}.trio_merged.bcf.gz")
 
     script:
     """
