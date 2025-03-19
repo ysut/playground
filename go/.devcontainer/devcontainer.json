@@ -1,7 +1,9 @@
 {
 	"name": "Go DevContainer",
-	"dockerComposeFile": "./compose.yaml",
+	"dockerComposeFile": "../compose.yaml",
 	"service": "go-app",
+	"workspaceFolder": "/work",
+	"onCreateCommand": "git config --local core.editor code",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -15,4 +17,3 @@
 		}
 	}
 }
-  

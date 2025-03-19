@@ -8,4 +8,4 @@ RUN set -ex \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
-WORKDIR /workspace
+WORKDIR /work
