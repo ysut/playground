@@ -373,10 +373,8 @@ process MERGE_BCFS_FOR_MALE_CHILD_TRIO {
 }
 
 process DEEPTRIO_FEMALE_CHILD {
-    publishDir "${params.out_root}/${family_id}/raw_vcfs/gvcfs", 
-                mode: 'symlink', pattern: '*.g.vcf.gz*'
     publishDir "${params.out_root}/${family_id}/raw_vcfs/vcfs", 
-                mode: 'symlink', pattern: '*.g.vcf.gz*'
+                mode: 'symlink', pattern: '*.vcf.gz*'
     publishDir "${params.out_root}/${family_id}/misc/reports/DeepTrioreports", 
                 mode: 'move', pattern: '*.html'
 
@@ -393,6 +391,9 @@ process DEEPTRIO_FEMALE_CHILD {
           val(child_id), val(dad_id), val(mom_id),
           path("*.g.vcf.gz"), path("*.g.vcf.gz.tbi"), 
           path(par_bed), path(par_bed_index),
+          path("daughter_${child_id}.vcf.gz*"), 
+          path("dad_${dad_id}.vcf.gz*"),
+          path("mom_${mom_id}.vcf.gz*"),
           path("*.html")
 
     script:
@@ -428,11 +429,8 @@ process GLNEXUS_FOR_FEMALE_TRIO {
     tuple val(family_id), path(reference), path(reference_index),
           val(child_id), val(dad_id), val(mom_id),
           path(input_gvcfs), path(input_gvcfs_tbi), 
-          path(input_X_incl_PAR_gvcfs), path(input_X_incl_PAR_gvcfs_tbis), 
-          path(input_Y_incl_PAR_gvcfs), path(input_Y_incl_PAR_gvcfs_tbis), 
-          path(dad_X_nonPAR_bcf), path(dad_X_nonPAR_bcf_csi),
           path(par_bed), path(par_bed_index),
-          val(_), val(_), val(_)
+          val(_), val(_), val(_), val(_)
     
     output:
     tuple val(family_id), 
@@ -443,7 +441,15 @@ process GLNEXUS_FOR_FEMALE_TRIO {
     glnexus_cli \\
       --config DeepVariant_unfiltered \\
       --threads ${params.glnexus_threads} \\
-      ${input_gvcfs} > ${family_id}.joint.bcf
+      ${input_gvcfs} > ${family_id}.trio_merged.bcf && \\
+
+    bcftools view \\
+      --samples daughter_${child_id},mom_${mom_id},dad_${dad_id} \\
+      --output-type b \\
+      --threads ${params.bcftools_threads} \\
+      ${family_id}.AP.trio_merged.bcf > ${family_id}.AP.trio_merged.bcf.gz && \\
+    
+    bcftools index ${family_id}.trio_merged.bcf.gz
     """
 }
 
